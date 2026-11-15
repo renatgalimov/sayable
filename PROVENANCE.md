@@ -40,6 +40,31 @@ have not been established.
 - UniMorph is split across language repositories; check the actual repositories and revisions individually rather than assigning one license to all.
 - [Leipzig's current terms](https://wortschatz.uni-leipzig.de/en/usage) offer downloadable text corpora under CC BY 4.0; the general data and applications have separate CC BY-NC terms. The historical archives' applicable terms and underlying-source rights remain to be checked.
 
+## Experimental candidate
+
+A separate private candidate was built by normalizing, filtering, merging and
+ranking words from these sources:
+
+- [Leipzig Corpora Collection](https://wortschatz.uni-leipzig.de/en/download): downloadable text corpora, currently offered under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+- [Tatoeba](https://tatoeba.org/en/downloads): its separate [CC0](https://creativecommons.org/publicdomain/zero/1.0/) sentence export, not the general export.
+- [FrequencyWords](https://github.com/hermitdave/FrequencyWords), based on OpenSubtitles: content stated as [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), separately from its MIT-licensed code.
+- [Wiktionary contributors via kaikki.org](https://kaikki.org/dictionary/): the provider describes the data as CC BY-SA and GFDL.
+- [UniMorph contributors](https://unimorph.github.io/): selected language repositories with current CC BY or CC BY-SA declarations; terms vary by repository.
+- [Eldamo](https://github.com/pfstrack/eldamo), © 2008–2026 Paul Strack: XML marked [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+
+The candidate used the three blocklists identified above: LDNOOBW, © 2021
+David Sojevic's dsojevic/profanity-list, and © 2018 Andrew Sliwinski's
+washyourmouthoutwithsoap. Their input terms were folded, filtered and combined.
+
+These credits identify sources of the private experiment; they are **not a
+complete distribution notice**. Before publishing its data or generated tables,
+resolve applicable versions and attribution for the actual input files, retain
+required license and copyright notices, and review how share-alike and
+underlying-source terms apply to each output. No additional permission is
+needed merely because an applicable public license has conditions. The
+candidate's mapping differs from the historical prototype; neither is released
+here.
+
 ## Before publishing historical data or outputs
 
 1. Inventory each output's actual inputs, versions, hashes, transformations and contributors; reconcile manifest failures and retries against files actually used.
