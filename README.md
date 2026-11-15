@@ -8,9 +8,31 @@ I also wanted the phrases to sound like more than just English. I drew on many s
 
 There will be a game that explains how the system works.
 
-The initial format handles 64-bit values; this repository is at the planning stage, with an implementation to follow. For a longer hash phrase, I can take a stream of bytes from SHAKE and encode it in 64-bit chunks; that is composition by the caller, not a variable-length Sayable format. I don't yet know a reliable way to make shorter words, so I'm experimenting with words of one to five tokens.
+The initial format handles 64-bit values. The prototype model uses ten tokens per phrase; its mapping is not yet released. For a longer hash phrase, I can take a stream of bytes from SHAKE and encode it in 64-bit chunks; that is composition by the caller, not a variable-length Sayable format.
 
 Sayable is an encoding, not encryption: anyone can reverse a phrase back into its encoded value. Hashing and obfuscation do not make it a way to protect secrets.
+
+## Model compiler
+
+`compiler/compile_phrase.py` ports the project's phrase-v7 prototype. It selects prefix-free beginnings and context-dependent middle and ending tokens, checks joins, and walks reachable words against the supplied blocklist. A phrase has ten tokens across three or four words; its 16 layouts encode 64 bits. This is a model generator and reference encoder, not a runtime package or a released mapping.
+
+The original training corpus, blocklist and their derived tables are **not included**: their provenance and redistribution terms remain unresolved. Do not publish them or outputs derived from them until their sources and licenses have been reviewed. The compiler requires a sufficiently large, suitable corpus to fill all rows; the small synthetic test pieces are not training data and do not constitute a production model.
+
+Inputs may be UTF-8 text or `.xz` compressed text. The corpus is read as lowercase ASCII word sequences. The blocklist contains one `term<TAB>source[,source...]` per line; terms must contain only ASCII letters and are lowercased. Source labels are nonempty and use only ASCII letters, digits, `.`, `_`, or `-`. Terms of five or more letters are checked anywhere within each word. Four-letter terms are checked at the start of a word, or anywhere if tagged `dsojevic-en-2`, `dsojevic-en-3`, `dsojevic-en-4` or `dsojevic-en-racial`. Three-letter terms with those labels are checked at word starts; shorter terms and other three-letter terms are ignored. Matches spanning spaces between words are not checked. Supply reviewed inputs and output paths outside the repository:
+
+```sh
+python compiler/compile_phrase.py --corpus /private/words.txt.xz \
+  --blocklist /private/blocklist.txt.xz --model /private/model.json \
+  --report /private/report.json
+# Recompute and compare both outputs byte for byte:
+python compiler/compile_phrase.py --corpus /private/words.txt.xz \
+  --blocklist /private/blocklist.txt.xz --model /private/model.json \
+  --report /private/report.json --check
+```
+
+The compiler stages both outputs in their destination directories before replacing either one. A staging failure leaves existing outputs unchanged; publication then replaces the model and report separately, not atomically as a pair. If the second replacement fails or the process is interrupted, the files may not match; rerun the compiler and use `--check`. Replacements create new files with restrictive temporary-file permissions and replace output symlinks themselves, rather than their targets. Avoid concurrent changes to input or output paths while compiling.
+
+The compiler fails when it cannot construct or validate the tables; it must run without Python's `-O` flag. Tests use explicitly invented tokens and terms, and exercise segmentation, the reference encoder/decoder, layouts, filtering and validation; they do not assert safety for an unpublished production model. Run them with `python -m unittest discover -s tests -v`.
 
 ## Contributing
 

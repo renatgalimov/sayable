@@ -3,7 +3,7 @@
 Each step gets its own pull request. Check it off when the pull request is merged.
 
 - [x] Project plan and license.
-- [ ] Repository guardrails: pre-commit checks, CI, and contributor setup.
+- [x] Repository guardrails: pre-commit checks, CI, and contributor setup.
 - [ ] Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
 - [ ] Rust implementation.
 - [ ] Python implementation.
