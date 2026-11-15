@@ -1,0 +1,22 @@
+# Plan
+
+Each step gets its own pull request:
+
+1. Project plan and license.
+2. Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
+3. Rust implementation.
+4. Python implementation.
+5. JavaScript implementation.
+6. Elm implementation.
+
+## Format and compatibility
+
+- Use shared, versioned data and test vectors so implementations agree. A custom meta-language is not planned.
+- Explore words of one to five tokens before choosing the 1.0 format.
+- Keep each format version in its own import path; do not change an existing version's mapping.
+- Improve filtering of known offensive terms with each new format version. No filter can cover every language or context.
+- Consider dynamic-length encodings after 1.0, not as part of 1.0.
+
+## Data and licensing
+
+Before including corpus data or generated tables, identify the source versions, check their terms, and include required attribution and notices. Do not assume the project's MIT license covers third-party data.
