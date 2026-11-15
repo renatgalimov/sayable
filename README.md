@@ -1,9 +1,21 @@
 # Sayable
 
-A planned reversible encoding from unsigned 64-bit integers to pronounceable phrases.
+I plan to use Sayable for obfuscation. I needed a way to turn hashes into words that people can read and say, so I'm building a reversible encoding for short phrases.
 
-The goal is a shared format for Rust, Python, JavaScript and Elm. The project will use a word filter to reduce known offensive output, but cannot guarantee that every phrase will be suitable in every language or context.
+Other projects, such as [word4num](https://pypi.org/project/word4num/) and [go-words](https://github.com/opencoff/go-words), also turn numbers or bytes into words. What I want from Sayable is pronounceable, constructed words with a strong focus on filtering bad words, a provable filter, and a stable mapping across implementations.
 
-Sayable is encoding, not encryption. It does not add randomness or a checksum.
+The initial format handles 64-bit values; this repository is at the planning stage, with an implementation to follow. For a longer hash phrase, I can take a stream of bytes from SHAKE and encode it in 64-bit chunks; that is composition by the caller, not a variable-length Sayable format. I don't yet know a reliable way to make shorter words, so I'm experimenting with words of one to five tokens.
 
-See [the plan](PLAN.md). Project code is licensed under the [MIT License](LICENSE). Data and third-party materials may have different terms; their sources and attribution must be reviewed before inclusion.
+Sayable is an encoding, not encryption: anyone can reverse a phrase back into its encoded value. Hashing and obfuscation do not make it a way to protect secrets.
+
+## Bad words
+
+My main goal is to keep bad words out. I will filter against the online lists I can find. If a bad word isn't in those lists, I can't promise to catch it.
+
+The filter is not yet fully verified. For 1.0.0, I want to prove mathematically that no output contains a listed term, within a clearly defined matching scope. Until I have that proof, it is a goal, not a guarantee. The proof cannot cover words missing from the lists or every possible interpretation of a phrase.
+
+## Stability
+
+Starting with 1.0.0, I guarantee that the same 64-bit value will produce the same phrase throughout that major version. If I need to change the mapping, I will use a new major version, such as 2.0.0, with its own import path. Existing versioned mappings will remain available.
+
+I plan compatible Rust, Python, JavaScript and Elm implementations. See [the plan](PLAN.md). Project code is licensed under the [MIT License](LICENSE). Data and third-party materials may have different terms; their sources and attribution must be reviewed before inclusion.
