@@ -1,6 +1,10 @@
 """Tests use invented pieces and terms, not historical corpus data."""
+import copy
 import itertools
 import json
+import random
+import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -67,6 +71,46 @@ def synthetic_model():
 
 
 class PhraseTests(unittest.TestCase):
+    def test_invented_corpus_compiles_and_roundtrips(self):
+        # Random letter strings and the arbitrary blocked pattern are invented for this test.
+        rng = random.Random(20261115)
+        words = set()
+        while len(words) < 100000:
+            word = "".join(rng.choices("abcdefghijklmnopqrstuvwxyz", k=10))
+            if not re.search(r"(.)\1\1|[aeiou]{3}", word):
+                words.add(word)
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            corpus, blocked = root / "corpus", root / "blocked"
+            model_path, report_path = root / "model.json", root / "report.json"
+            corpus.write_text("\n".join(sorted(words)) + "\n", encoding="ascii")
+            blocked.write_text("liyqc\tsynthetic\n", encoding="ascii")
+            command = [sys.executable, str(Path(__file__).resolve().parents[1] / "compiler" / "compile_phrase.py"), "--corpus", str(corpus),
+                       "--blocklist", str(blocked), "--model", str(model_path),
+                       "--report", str(report_path)]
+            subprocess.run(command, check=True, capture_output=True, text=True)
+            before = (model_path.read_bytes(), report_path.read_bytes())
+            subprocess.run(command + ["--check"], check=True, capture_output=True, text=True)
+            self.assertEqual((model_path.read_bytes(), report_path.read_bytes()), before)
+            model = json.loads(before[0])
+            stats = json.loads(before[1])["statistics"]
+            self.assertEqual(len(model["tokens"]), 1024)
+            self.assertGreater(stats["segmented_words"], 0)
+            self.assertGreater(stats["banned_pairs"], 0)
+            terms = phrase.Terms([], ["liyqc"])
+            self.assertEqual(phrase.violations(model, terms), set())
+            # Reintroducing a banned transition must make the forbidden pattern reachable.
+            unsafe = copy.deepcopy(model)
+            ctx, banned = next(iter(unsafe["banned"].items()))
+            token = banned[0]
+            row = phrase.context(unsafe, int(ctx))
+            kind = "middle" if token >= 512 else "end32"
+            self.assertNotIn(token, unsafe[kind][row])
+            unsafe[kind][row][0] = token
+            self.assertIn((int(ctx), token), phrase.violations(unsafe, terms))
+            for value in (0, 1, 2**64 - 1, 0x243F6A8885A308D3):
+                self.assertEqual(decode(model, phrase.encode(model, value)), value)
+
     def test_inputs_are_explicit_and_support_plain_text(self):
         with tempfile.TemporaryDirectory() as tmp:
             corpus, blocked = Path(tmp) / "words.txt", Path(tmp) / "blocked.txt"
