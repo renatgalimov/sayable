@@ -14,7 +14,20 @@ Sayable is an encoding, not encryption: anyone can reverse a phrase back into it
 
 ## Contributing
 
-Install Python 3 (with pip) and Git, then run `python -m pip install pre-commit==4.7.0` and `pre-commit install`. Run `pre-commit run --all-files` before opening a pull request; fix any reported issues and rerun it. The first run downloads the pinned hook environments, including a Node.js environment for Markdown linting. The same checks run in GitHub Actions. Python linting and formatting apply when Python files are added.
+Install Git, Python 3.11 or newer, and Node.js 22 with npm. Then run:
+
+```sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+npm ci --ignore-scripts --no-audit --no-fund
+python -m unittest discover -s tests -v
+pre-commit run --all-files
+```
+
+Optionally run `pre-commit install` to enable checks on commits; the commands above do not install Git hooks. CI runs the same tests and checks. The whitespace, final-newline, and Ruff formatting checks report problems without changing files.
+
+All pre-commit hook definitions are local to this repository. They still depend on external Python, Node.js, pre-commit, PyYAML, Ruff and markdownlint-cli2 packages. Python dependencies are version-pinned; npm dependencies are locked in `package-lock.json`. Runtimes are not locked and Python package downloads are not hash-verified.
 
 ## Bad words
 

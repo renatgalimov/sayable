@@ -1,21 +1,55 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c # v6.0.0
+  - repo: local
     hooks:
       - id: check-yaml
+        name: Check YAML
+        entry: python scripts/check_files.py yaml
+        language: system
+        types: [file, yaml]
       - id: check-json
+        name: Check JSON
+        entry: python scripts/check_files.py json
+        language: system
+        types: [file, json]
       - id: check-toml
+        name: Check TOML
+        entry: python scripts/check_files.py toml
+        language: system
+        types: [file, toml]
       - id: check-merge-conflict
+        name: Check merge conflicts
+        entry: python scripts/check_files.py conflict
+        language: system
+        types: [file, text]
       - id: check-added-large-files
-        args: [--enforce-all]
+        name: Check file size
+        entry: python scripts/check_files.py size
+        language: system
+        types: [file]
       - id: end-of-file-fixer
+        name: Check final newline
+        entry: python scripts/check_files.py eof
+        language: system
+        types: [file, text]
       - id: trailing-whitespace
-  - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: d7a4f7cf4914d3bffb9b83bdbc45fd2a00c91ff9 # v0.18.1
-    hooks:
-      - id: markdownlint-cli2
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: 60ef368a6f48dfb4317651017f66dbb055241a6c # v0.12.12
-    hooks:
+        name: Check trailing whitespace
+        entry: python scripts/check_files.py whitespace
+        language: system
+        types: [file, text]
+      - id: markdownlint
+        name: Markdown lint
+        entry: ./node_modules/.bin/markdownlint-cli2
+        language: system
+        types: [file, markdown]
       - id: ruff-check
+        name: Ruff lint
+        entry: ruff check
+        language: system
+        types_or: [python, pyi]
+        types: [file]
       - id: ruff-format
+        name: Ruff format
+        entry: ruff format --check
+        language: system
+        types_or: [python, pyi]
+        types: [file]
