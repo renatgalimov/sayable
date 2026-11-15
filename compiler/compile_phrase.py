@@ -25,8 +25,6 @@ TOTAL_TOKENS, MAX_WORDS, MIN_WORD, MAX_WORD = 10, 4, 2, 4
 VERSION = "phrase-v7"
 
 
-# ---------------------------------------------------------------- vocabulary and corpus counts
-
 def read_text(path):
     return lzma.decompress(path.read_bytes()).decode() if path.suffix == ".xz" else path.read_text(encoding="utf-8")
 
@@ -140,7 +138,6 @@ def segment(word, begin_ids, middle_ids, end_ids, frequency):
 
 
 def splitter(tokens):
-    """word -> its token ids (a beginning, middles, an ending), or None; the game splits words the same way."""
     begin_ids = {text_of(t): i for i, t in enumerate(tokens[:NUM_BEGIN])}
     end_ids = {text_of(t): NUM_BEGIN + i for i, t in enumerate(tokens[NUM_BEGIN:NUM_BEGIN + NUM_END])}
     middle_ids = {t: NUM_BEGIN + NUM_END + i for i, t in enumerate(tokens[NUM_BEGIN + NUM_END:])}
@@ -154,7 +151,7 @@ def count_transitions(words, tokens):
     split = splitter(tokens)
     begin, middle, ending = Counter(), defaultdict(Counter), defaultdict(Counter)
     segmented = skipped = 0
-    for word in words:  # corpus words are distinct, so each is split once
+    for word in words:
         ids = split(word)
         if ids is None:
             skipped += 1
@@ -165,8 +162,6 @@ def count_transitions(words, tokens):
             (ending if NUM_BEGIN <= following < NUM_BEGIN + NUM_END else middle)[previous][following] += 1
     return {"begin": begin, "middle": middle, "end": ending, "segmented": segmented, "skipped": skipped}
 
-
-# ---------------------------------------------------------------- table selection
 
 def contexts(begin):
     """The token each row follows: the chosen beginnings in table order, then every middle."""
@@ -413,7 +408,6 @@ def compile_model(corpus_path, blocklist_path, max_rounds=100):
         global_middle.update(row)
     for row in counts["end"].values():
         global_end.update(row)
-    # The candidates are already prefix-free (build_vocabulary), so the most common ones are the beginnings.
     begin = sorted(range(NUM_BEGIN), key=lambda i: (-counts["begin"].get(i, 0), text[i]))[:BEGIN_SIZE]
     rows = contexts(begin)
 
@@ -478,7 +472,6 @@ def compile_model(corpus_path, blocklist_path, max_rounds=100):
     else:
         raise ValueError(f"offensive words still reachable after {max_rounds} rounds: {rounds}")
     assert not set(begin) & {int(ctx) for ctx in relaxed}, "a chosen beginning needs a lower join minimum"
-    # The tokens left out after each context because they would spell a term (directly or across tokens).
     model["banned"] = {str(ctx): sorted(b) for ctx, b in banned.items() if b}
     validate(model, words, start_terms, anywhere_terms)
     statistics = report(model, counts)
@@ -543,8 +536,6 @@ def report(model, counts):
     stats["begin_attested"] = sum(1 for i in model["begin"] if counts["begin"].get(i))
     return {"statistics": stats}
 
-
-# ---------------------------------------------------------------- reference codec (mirrors src/phrase.rs)
 
 def layouts():
     result = []
