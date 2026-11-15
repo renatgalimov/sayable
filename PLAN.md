@@ -3,11 +3,12 @@
 Each step gets its own pull request:
 
 1. Project plan and license.
-2. Model generation: define the shared format, build the model, document data sources and licenses, add reproducibility checks and reference vectors, and set up pre-commit.
-3. Rust implementation.
-4. Python implementation.
-5. JavaScript implementation.
-6. Elm implementation.
+2. Repository guardrails: pre-commit checks, CI, and contributor setup.
+3. Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
+4. Rust implementation.
+5. Python implementation.
+6. JavaScript implementation.
+7. Elm implementation.
 
 ## Format and compatibility
 

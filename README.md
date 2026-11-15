@@ -12,6 +12,10 @@ The initial format handles 64-bit values; this repository is at the planning sta
 
 Sayable is an encoding, not encryption: anyone can reverse a phrase back into its encoded value. Hashing and obfuscation do not make it a way to protect secrets.
 
+## Contributing
+
+Install Python 3 (with pip) and Git, then run `python -m pip install pre-commit==4.7.0` and `pre-commit install`. Run `pre-commit run --all-files` before opening a pull request; fix any reported issues and rerun it. The first run downloads the pinned hook environments, including a Node.js environment for Markdown linting. The same checks run in GitHub Actions. Python linting and formatting apply when Python files are added.
+
 ## Bad words
 
 My main goal is to keep bad words out. I will filter against the online lists I can find. If a bad word isn't in those lists, I can't promise to catch it.
