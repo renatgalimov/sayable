@@ -4,6 +4,10 @@ I plan to use Sayable for obfuscation. I needed a way to turn hashes into words 
 
 Other projects, such as [word4num](https://pypi.org/project/word4num/) and [go-words](https://github.com/opencoff/go-words), also turn numbers or bytes into words. What I want from Sayable is pronounceable, constructed words with a strong focus on filtering bad words, a provable filter, and a stable mapping across implementations.
 
+I also wanted the phrases to sound like more than just English. I drew on many spoken languages and made-up languages when building the model.
+
+There will be a game that explains how the system works.
+
 The initial format handles 64-bit values; this repository is at the planning stage, with an implementation to follow. For a longer hash phrase, I can take a stream of bytes from SHAKE and encode it in 64-bit chunks; that is composition by the caller, not a variable-length Sayable format. I don't yet know a reliable way to make shorter words, so I'm experimenting with words of one to five tokens.
 
 Sayable is an encoding, not encryption: anyone can reverse a phrase back into its encoded value. Hashing and obfuscation do not make it a way to protect secrets.
