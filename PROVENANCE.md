@@ -38,7 +38,7 @@ have not been established.
 - [FrequencyWords' README](https://github.com/hermitdave/FrequencyWords/blob/525f9b560de45753a5ea01069454e72e9aa541c6/README.md) distinguishes MIT code from CC BY-SA 4.0 content. This revision is a license reference, not a verified historical input revision.
 - [Tatoeba's current downloads page](https://tatoeba.org/en/downloads) states CC BY 2.0 FR for its exports; its [terms](https://tatoeba.org/en/terms_of_use) also discuss CC0 sentences. Determine the actual export and attribution information used; current terms alone do not establish historical terms.
 - UniMorph is split across language repositories; check the actual repositories and revisions individually rather than assigning one license to all.
-- Leipzig's applicable terms have not been verified: the [usage page](https://wortschatz.uni-leipzig.de/en/usage) was blocked during review. Verify terms for each selected corpus directly with the provider.
+- [Leipzig's current terms](https://wortschatz.uni-leipzig.de/en/usage) offer downloadable text corpora under CC BY 4.0; the general data and applications have separate CC BY-NC terms. The historical archives' applicable terms and underlying-source rights remain to be checked.
 
 ## Before publishing historical data or outputs
 
