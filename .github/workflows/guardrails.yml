@@ -26,5 +26,12 @@ jobs:
           npm ci --ignore-scripts --no-audit --no-fund
       - name: Run model tests
         run: python -m unittest discover -s tests -v
+      - name: Check model generation
+        run: >-
+          python compiler/compile_phrase.py
+          --corpus models/training-data/phrase-words.txt.xz
+          --blocklist models/training-data/blocklist.txt.xz
+          --model models/phrase-v8.json
+          --report models/phrase-v8-report.json --check
       - name: Check all tracked files
         run: pre-commit run --all-files --show-diff-on-failure

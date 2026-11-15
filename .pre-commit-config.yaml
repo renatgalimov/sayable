@@ -18,7 +18,7 @@ repos:
         types: [file, text]
       - id: check-added-large-files
         name: Check file size
-        entry: check-added-large-files --enforce-all
+        entry: check-added-large-files --enforce-all --maxkb=2048
         language: system
         types: [file]
       - id: end-of-file-fixer

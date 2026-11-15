@@ -1,0 +1,78 @@
+{
+  "model_version": "phrase-v8",
+  "vectors": [
+    {
+      "value_hex": "0000000000000000",
+      "phrase": "maan maan maan mataizin"
+    },
+    {
+      "value_hex": "0000000000000001",
+      "phrase": "maan maan matara matara"
+    },
+    {
+      "value_hex": "0000000000000002",
+      "phrase": "maan maan mataizin maan"
+    },
+    {
+      "value_hex": "0000000000000003",
+      "phrase": "maan matara maan matara"
+    },
+    {
+      "value_hex": "0000000000000004",
+      "phrase": "maan matara matara maan"
+    },
+    {
+      "value_hex": "0000000000000005",
+      "phrase": "maan mataizin maan maan"
+    },
+    {
+      "value_hex": "0000000000000006",
+      "phrase": "maan mataizin mataizin"
+    },
+    {
+      "value_hex": "0000000000000007",
+      "phrase": "matara maan maan matara"
+    },
+    {
+      "value_hex": "0000000000000008",
+      "phrase": "matara maan matara maan"
+    },
+    {
+      "value_hex": "0000000000000009",
+      "phrase": "matara matara maan maan"
+    },
+    {
+      "value_hex": "000000000000000a",
+      "phrase": "matara matara mataizin"
+    },
+    {
+      "value_hex": "000000000000000b",
+      "phrase": "matara mataizin matara"
+    },
+    {
+      "value_hex": "000000000000000c",
+      "phrase": "mataizin maan maan maan"
+    },
+    {
+      "value_hex": "000000000000000d",
+      "phrase": "mataizin maan mataizin"
+    },
+    {
+      "value_hex": "000000000000000e",
+      "phrase": "mataizin matara matara"
+    },
+    {
+      "value_hex": "000000000000000f",
+      "phrase": "mataizin mataizin maan"
+    },
+    {
+      "value_hex": "ffffffffffffffff",
+      "phrase": "jubontei jubontei juti"
+    },
+    {
+      "value_hex": "243f6a8885a308d3",
+      "phrase": "sain armeni chne osalawo"
+    }
+  ],
+  "model_sha256": "c305a2136907e648c98dc41a0ed3483891a78d5a18abb545cf7045e58a4dc119"
+}

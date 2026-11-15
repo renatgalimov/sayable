@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile Sayable phrase-v7 token tables from a corpus and blocklist.
+"""Compile Sayable phrase-v8 token tables from a corpus and blocklist.
 
 The prototype chooses prefix-free beginnings and context-dependent middle/end
 rows, then checks joins and walks reachable words against the blocklist.
@@ -22,7 +22,7 @@ MAX_TOKEN = 6
 NUM_BEGIN, NUM_END, NUM_MIDDLE = 256, 256, 512
 BEGIN_SIZE, MIDDLE_SIZE, END_SIZE = 128, 64, 32
 TOTAL_TOKENS, MAX_WORDS, MIN_WORD, MAX_WORD = 10, 4, 2, 4
-VERSION = "phrase-v7"
+VERSION = "phrase-v8"
 
 
 def read_text(path):
