@@ -12,6 +12,22 @@ The initial format handles 64-bit values; this repository is at the planning sta
 
 Sayable is an encoding, not encryption: anyone can reverse a phrase back into its encoded value. Hashing and obfuscation do not make it a way to protect secrets.
 
+## Contributing
+
+Install Git, Python 3.11 or newer, and Node.js 22 with npm. Then run:
+
+```sh
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+npm ci --ignore-scripts --no-audit --no-fund
+pre-commit run --all-files --show-diff-on-failure
+```
+
+Optionally run `pre-commit install` to enable checks on commits; the commands above do not install Git hooks. CI runs the same checks. Whitespace and final-newline hooks fix files in place; review and stage their changes.
+
+Hook definitions are local; their executables are installed dependencies. Python dependencies are version-pinned, and npm dependencies are locked. Runtimes are not locked and Python downloads are not hash-verified.
+
 ## Bad words
 
 My main goal is to keep bad words out. I will filter against the online lists I can find. If a bad word isn't in those lists, I can't promise to catch it.

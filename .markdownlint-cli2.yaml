@@ -1,0 +1,2 @@
+config:
+  MD013: false  # Prose is kept as one line per paragraph.

@@ -1,0 +1,33 @@
+repos:
+  - repo: local
+    hooks:
+      - id: yamllint
+        name: YAML lint
+        entry: yamllint
+        language: system
+        types: [file, yaml]
+      - id: markdownlint
+        name: Markdown lint
+        entry: ./node_modules/.bin/markdownlint-cli2
+        language: system
+        types: [file, markdown]
+      - id: check-merge-conflict
+        name: Check merge conflicts
+        entry: check-merge-conflict --assume-in-merge
+        language: system
+        types: [file, text]
+      - id: check-added-large-files
+        name: Check file size
+        entry: check-added-large-files --enforce-all
+        language: system
+        types: [file]
+      - id: end-of-file-fixer
+        name: Fix final newline
+        entry: end-of-file-fixer
+        language: system
+        types: [file, text]
+      - id: trailing-whitespace
+        name: Fix trailing whitespace
+        entry: trailing-whitespace-fixer --markdown-linebreak-ext=md
+        language: system
+        types: [file, text]
