@@ -71,6 +71,25 @@ def synthetic_model():
 
 
 class PhraseTests(unittest.TestCase):
+    def test_corpus_folds_accents_before_extracting_words(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            corpus = Path(tmp) / "corpus"
+            corpus.write_text("naïve café NAI\u0308VE CAFE\u0301", encoding="utf-8")
+            self.assertEqual(phrase.corpus_words(corpus), ["naive", "cafe", "naive", "cafe"])
+
+    def test_corpus_folds_compatibility_capitals_without_fragments(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            corpus = Path(tmp) / "corpus"
+            corpus.write_text("foo𝐀bar", encoding="utf-8")
+            self.assertEqual(phrase.corpus_words(corpus), ["fooabar"])
+
+    def test_corpus_rejects_letters_that_cannot_be_ascii_folded(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            corpus = Path(tmp) / "corpus"
+            corpus.write_text("smørrebrød", encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "cannot be ASCII-folded"):
+                phrase.corpus_words(corpus)
+
     def test_invented_corpus_compiles_and_roundtrips(self):
         # Random letter strings and the arbitrary blocked pattern are invented for this test.
         rng = random.Random(20261115)

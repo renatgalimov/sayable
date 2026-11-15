@@ -13,6 +13,7 @@ import os
 import re
 import sys
 import tempfile
+import unicodedata
 from collections import Counter, defaultdict, deque
 from pathlib import Path
 
@@ -31,7 +32,11 @@ def read_text(path):
 
 
 def corpus_words(path):
-    return re.findall(r"[a-z]+", read_text(path).lower())
+    text = unicodedata.normalize("NFKD", read_text(path)).lower()
+    text = "".join(char for char in text if not unicodedata.category(char).startswith("M"))
+    if any(not char.isascii() and char.isalpha() for char in text):
+        raise ValueError("corpus contains letters that cannot be ASCII-folded")
+    return re.findall(r"[a-z]+", text)
 
 
 STRONG = {"dsojevic-en-2", "dsojevic-en-3", "dsojevic-en-4", "dsojevic-en-racial"}
