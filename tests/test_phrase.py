@@ -138,6 +138,15 @@ class PhraseTests(unittest.TestCase):
             self.assertEqual(phrase.corpus_words(corpus), ["baba", "beda"])
             self.assertEqual(phrase.blocklist(blocked), ([], ["zebra"]))
 
+    def test_blocklist_reports_line_for_invalid_tab_count(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "blocks"
+            for bad_line in ("missing-tab", "", "word\tsource\textra"):
+                with self.subTest(bad_line=bad_line):
+                    path.write_text(f"zebra\tsynthetic\n{bad_line}\n", encoding="utf-8")
+                    with self.assertRaisesRegex(ValueError, r"blocklist line 2: expected term<TAB>sources"):
+                        phrase.blocklist(path)
+
     def test_blocklist_normalizes_ascii_case(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "blocks"

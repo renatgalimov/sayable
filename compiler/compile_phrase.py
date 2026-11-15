@@ -46,6 +46,8 @@ def blocklist(path):
     """Return terms checked at a word's start or anywhere within a word."""
     start, anywhere = set(), set()
     for number, line in enumerate(read_text(path).splitlines(), 1):
+        if line.count("\t") != 1:
+            raise ValueError(f"blocklist line {number}: expected term<TAB>sources")
         term, sources = line.split("\t")
         if not re.fullmatch(r"[A-Za-z]+", term):
             raise ValueError(f"blocklist line {number}: expected ASCII letters")
