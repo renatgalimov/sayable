@@ -16,6 +16,8 @@ The filter is not yet fully verified. For 1.0.0, I want to prove mathematically 
 
 ## Stability
 
+I plan to release the current format as 0.9. Its phrases can still change as I experiment and improve the filter; don't rely on the mapping staying the same before 1.0.0.
+
 Starting with 1.0.0, I guarantee that the same 64-bit value will produce the same phrase throughout that major version. If I need to change the mapping, I will use a new major version, such as 2.0.0, with its own import path. Existing versioned mappings will remain available.
 
 I plan compatible Rust, Python, JavaScript and Elm implementations. See [the plan](PLAN.md). Project code is licensed under the [MIT License](LICENSE). Data and third-party materials may have different terms; their sources and attribution must be reviewed before inclusion.

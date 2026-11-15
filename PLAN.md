@@ -13,7 +13,7 @@ Each step gets its own pull request:
 
 - Use shared, versioned data and test vectors so implementations agree. A custom meta-language is not planned.
 - Explore words of one to five tokens before choosing the 1.0 format.
-- Keep each format version in its own import path; do not change an existing version's mapping.
+- Give each format version its own import path. The 0.9 mapping can change before 1.0; starting with 1.0, keep each major version's mapping unchanged.
 - Improve filtering of known offensive terms with each new format version. No filter can cover every language or context.
 - Consider dynamic-length encodings after 1.0, not as part of 1.0.
 
