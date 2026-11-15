@@ -24,14 +24,26 @@ class ReleasedModelTests(unittest.TestCase):
         self.assertEqual(self.model['version'], 'phrase-v8')
         self.assertEqual(self.vectors['model_version'], 'phrase-v8')
         self.assertEqual(self.vectors['model_sha256'], hashlib.sha256(MODEL.read_bytes()).hexdigest())
-        self.assertEqual(len(self.vectors['vectors']), 18)
-        covered = set()
-        for vector in self.vectors['vectors']:
-            value = int(vector['value_hex'], 16)
-            covered.add(value & 15)
+        values = [int(vector['value_hex'], 16) for vector in self.vectors['vectors']]
+        self.assertEqual(len(values), len(set(values)))
+        self.assertTrue({0, 0x17, 2**64 - 1}.issubset(values))
+        self.assertEqual({value & 15 for value in values}, set(range(16)))
+        middle_choices = set()
+        for vector, value in zip(self.vectors['vectors'], values):
+            self.assertRegex(vector['value_hex'], r'^[0-9a-f]{16}$')
             self.assertEqual(phrase.encode(self.model, value), vector['phrase'])
             self.assertEqual(decode(self.model, vector['phrase']), value)
-        self.assertEqual(covered, set(range(16)))
+            remaining = value >> 4
+            for length in phrase.layouts()[value & 15]:
+                token = self.model['begin'][remaining % phrase.BEGIN_SIZE]
+                remaining //= phrase.BEGIN_SIZE
+                for _ in range(length - 2):
+                    row, digit = phrase.context(self.model, token), remaining % phrase.MIDDLE_SIZE
+                    middle_choices.add((row, digit))
+                    token = self.model['middle'][row][digit]
+                    remaining //= phrase.MIDDLE_SIZE
+                remaining //= phrase.END_SIZE
+        self.assertGreaterEqual(len(middle_choices), 2000)
 
     def test_seeded_reference_roundtrips_and_distinct_phrases(self):
         rng = random.Random(0x51a7ab1e)
@@ -57,13 +69,16 @@ class ReleasedModelTests(unittest.TestCase):
         corpus = phrase.corpus_words(ROOT / 'models' / 'training-data' / 'phrase-words.txt.xz')
         self.assertEqual(words, set(corpus))
 
-    def test_reject_noncanonical_vectors(self):
-        original = self.vectors['vectors'][0]['phrase']
-        for bad in ('', ' ' + original, original + ' ', original.replace(' ', '  ', 1),
-                    original.replace(' ', '\t', 1), original.upper(), original + '!',
-                    original + ' ' + original.split()[0], original.replace(' ', '', 1)):
-            with self.subTest(bad=bad):
-                self.assertIsNone(decode(self.model, bad))
+    def test_shared_invalid_phrases(self):
+        cases = self.vectors['invalid']
+        names = [case['case'] for case in cases]
+        self.assertEqual(len(names), len(set(names)))
+        self.assertTrue({'empty', 'leading_space', 'trailing_space', 'double_space', 'tab',
+                         'uppercase', 'extra_token', 'missing_token', 'invalid_layout',
+                         'overlong'}.issubset(names))
+        for case in cases:
+            with self.subTest(case=case['case']):
+                self.assertIsNone(decode(self.model, case['phrase']))
 
 
 if __name__ == '__main__':
