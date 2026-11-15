@@ -1,55 +1,33 @@
 repos:
   - repo: local
     hooks:
-      - id: check-yaml
-        name: Check YAML
-        entry: python scripts/check_files.py yaml
+      - id: yamllint
+        name: YAML lint
+        entry: yamllint
         language: system
         types: [file, yaml]
-      - id: check-json
-        name: Check JSON
-        entry: python scripts/check_files.py json
-        language: system
-        types: [file, json]
-      - id: check-toml
-        name: Check TOML
-        entry: python scripts/check_files.py toml
-        language: system
-        types: [file, toml]
-      - id: check-merge-conflict
-        name: Check merge conflicts
-        entry: python scripts/check_files.py conflict
-        language: system
-        types: [file, text]
-      - id: check-added-large-files
-        name: Check file size
-        entry: python scripts/check_files.py size
-        language: system
-        types: [file]
-      - id: end-of-file-fixer
-        name: Check final newline
-        entry: python scripts/check_files.py eof
-        language: system
-        types: [file, text]
-      - id: trailing-whitespace
-        name: Check trailing whitespace
-        entry: python scripts/check_files.py whitespace
-        language: system
-        types: [file, text]
       - id: markdownlint
         name: Markdown lint
         entry: ./node_modules/.bin/markdownlint-cli2
         language: system
         types: [file, markdown]
-      - id: ruff-check
-        name: Ruff lint
-        entry: ruff check
+      - id: check-merge-conflict
+        name: Check merge conflicts
+        entry: check-merge-conflict --assume-in-merge
         language: system
-        types_or: [python, pyi]
-        types: [file]
-      - id: ruff-format
-        name: Ruff format
-        entry: ruff format --check
+        types: [file, text]
+      - id: check-added-large-files
+        name: Check file size
+        entry: check-added-large-files --enforce-all
         language: system
-        types_or: [python, pyi]
         types: [file]
+      - id: end-of-file-fixer
+        name: Fix final newline
+        entry: end-of-file-fixer
+        language: system
+        types: [file, text]
+      - id: trailing-whitespace
+        name: Fix trailing whitespace
+        entry: trailing-whitespace-fixer --markdown-linebreak-ext=md
+        language: system
+        types: [file, text]

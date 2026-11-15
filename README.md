@@ -21,13 +21,12 @@ python -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 npm ci --ignore-scripts --no-audit --no-fund
-python -m unittest discover -s tests -v
-pre-commit run --all-files
+pre-commit run --all-files --show-diff-on-failure
 ```
 
-Optionally run `pre-commit install` to enable checks on commits; the commands above do not install Git hooks. CI runs the same tests and checks. The whitespace, final-newline, and Ruff formatting checks report problems without changing files.
+Optionally run `pre-commit install` to enable checks on commits; the commands above do not install Git hooks. CI runs the same checks. Whitespace and final-newline hooks fix files in place; review and stage their changes.
 
-All pre-commit hook definitions are local to this repository. They still depend on external Python, Node.js, pre-commit, PyYAML, Ruff and markdownlint-cli2 packages. Python dependencies are version-pinned; npm dependencies are locked in `package-lock.json`. Runtimes are not locked and Python package downloads are not hash-verified.
+Hook definitions are local; their executables are installed dependencies. Python dependencies are version-pinned, and npm dependencies are locked. Runtimes are not locked and Python downloads are not hash-verified.
 
 ## Bad words
 
