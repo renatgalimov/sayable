@@ -1,14 +1,14 @@
 # Plan
 
-Each step gets its own pull request:
+Each step gets its own pull request. Check it off when the pull request is merged.
 
-1. Project plan and license.
-2. Repository guardrails: pre-commit checks, CI, and contributor setup.
-3. Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
-4. Rust implementation.
-5. Python implementation.
-6. JavaScript implementation.
-7. Elm implementation.
+- [x] Project plan and license.
+- [ ] Repository guardrails: pre-commit checks, CI, and contributor setup.
+- [ ] Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
+- [ ] Rust implementation.
+- [ ] Python implementation.
+- [ ] JavaScript implementation.
+- [ ] Elm implementation.
 
 ## Format and compatibility
 
