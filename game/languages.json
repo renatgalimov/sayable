@@ -1,0 +1,554 @@
+{
+  "aa": {
+    "article": "Afar_language",
+    "name": "Afar"
+  },
+  "ace": {
+    "article": "Acehnese_language",
+    "name": "Acehnese"
+  },
+  "akk": {
+    "article": "Akkadian_language",
+    "name": "Akkadian"
+  },
+  "an": {
+    "article": "Aragonese_language",
+    "name": "Aragonese"
+  },
+  "ang": {
+    "article": "Old_English",
+    "name": "Old English"
+  },
+  "anw": {
+    "article": "Anaang_language",
+    "name": "Anaang"
+  },
+  "ast": {
+    "article": "Asturian_language",
+    "name": "Asturian"
+  },
+  "az": {
+    "article": "Azerbaijani_language",
+    "name": "Azerbaijani"
+  },
+  "bcl": {
+    "article": "Central_Bikol",
+    "name": "Central Bikol"
+  },
+  "ber": {
+    "article": "Berber_languages",
+    "name": "Berber languages"
+  },
+  "bjn": {
+    "article": "Banjarese_language",
+    "name": "Banjar"
+  },
+  "bm": {
+    "article": "Bambara_language",
+    "name": "Bambara"
+  },
+  "br": {
+    "article": "Breton_language",
+    "name": "Breton"
+  },
+  "bs": {
+    "article": "Bosnian_language",
+    "name": "Bosnian"
+  },
+  "ca": {
+    "article": "Catalan_language",
+    "name": "Catalan"
+  },
+  "cni": {
+    "article": "Ash\u00e1ninka_language",
+    "name": "Ash\u00e1ninka"
+  },
+  "crh": {
+    "article": "Crimean_Tatar_language",
+    "name": "Crimean Tatar"
+  },
+  "de": {
+    "article": "German_language",
+    "name": "German"
+  },
+  "diq": {
+    "article": "Southern_Zaza",
+    "name": "Dimli (individual language)"
+  },
+  "dv": {
+    "article": "Maldivian_language",
+    "name": "Divehi"
+  },
+  "ee": {
+    "article": "Ewe_language",
+    "name": "Ewe"
+  },
+  "el": {
+    "article": "Modern_Greek",
+    "name": "Greek"
+  },
+  "en": {
+    "article": "English_language",
+    "name": "English"
+  },
+  "eo": {
+    "article": "Esperanto",
+    "name": "Esperanto"
+  },
+  "es": {
+    "article": "Spanish_language",
+    "name": "Spanish"
+  },
+  "et": {
+    "article": "Estonian_language",
+    "name": "Standard Estonian"
+  },
+  "eu": {
+    "article": "Basque_language",
+    "name": "Basque"
+  },
+  "ext": {
+    "article": "Extremaduran_language",
+    "name": "Extremaduran"
+  },
+  "fax": {
+    "article": "Fala_language",
+    "name": "Fala"
+  },
+  "ff": {
+    "article": "Fula_language",
+    "name": "Fula"
+  },
+  "fi": {
+    "article": "Finnish_language",
+    "name": "Finnish"
+  },
+  "fil": {
+    "article": "Filipino_language",
+    "name": "Filipino"
+  },
+  "fr": {
+    "article": "French_language",
+    "name": "French"
+  },
+  "fur": {
+    "article": "Friulian_language",
+    "name": "Friulian"
+  },
+  "gag": {
+    "article": "Gagauz_language",
+    "name": "Gagauz"
+  },
+  "gal": {
+    "article": "Galoli_language",
+    "name": "Galolen"
+  },
+  "gl": {
+    "article": "Galician_language",
+    "name": "Galician"
+  },
+  "gn": {
+    "article": "Guarani_language",
+    "name": "Guarani"
+  },
+  "goh": {
+    "article": "Old_High_German",
+    "name": "Old High German"
+  },
+  "gug": {
+    "article": "Paraguayan_Guarani_dialect",
+    "name": "Paraguayan Guaran\u00ed"
+  },
+  "ha": {
+    "article": "Hausa_language",
+    "name": "Hausa"
+  },
+  "hr": {
+    "article": "Croatian_language",
+    "name": "Croatian"
+  },
+  "ht": {
+    "article": "Haitian_Creole",
+    "name": "Haitian Creole"
+  },
+  "hu": {
+    "article": "Hungarian_language",
+    "name": "Hungarian"
+  },
+  "huu": {
+    "article": "Murui_Huitoto_language",
+    "name": "Murui Huitoto"
+  },
+  "ia": {
+    "article": "Interlingua",
+    "name": "Interlingua"
+  },
+  "id": {
+    "article": "Indonesian_language",
+    "name": "Indonesian"
+  },
+  "ie": {
+    "article": "Interlingue",
+    "name": "Interlingue"
+  },
+  "ig": {
+    "article": "Igbo_language",
+    "name": "Igbo"
+  },
+  "ilo": {
+    "article": "Ilocano_language",
+    "name": "Iloko"
+  },
+  "io": {
+    "article": "Ido",
+    "name": "Ido"
+  },
+  "it": {
+    "article": "Italian_language",
+    "name": "Italian"
+  },
+  "izh": {
+    "article": "Ingrian_language",
+    "name": "Ingrian"
+  },
+  "jv": {
+    "article": "Javanese_language",
+    "name": "Javanese"
+  },
+  "kbp": {
+    "article": "Kabiye_language",
+    "name": "Kabiy\u00e8"
+  },
+  "ki": {
+    "article": "Kikuyu_language",
+    "name": "Kikuyu"
+  },
+  "kl": {
+    "article": "Greenlandic_language",
+    "name": "Kalaallisut"
+  },
+  "kmr": {
+    "article": "Kurmanji",
+    "name": "Northern Kurdish"
+  },
+  "krl": {
+    "article": "Karelian_language",
+    "name": "Karelian"
+  },
+  "la": {
+    "article": "Latin",
+    "name": "Latin"
+  },
+  "lad": {
+    "article": "Judaeo-Spanish",
+    "name": "Ladino"
+  },
+  "lg": {
+    "article": "Luganda",
+    "name": "Ganda"
+  },
+  "lij": {
+    "article": "Ligurian_language",
+    "name": "Ligurian"
+  },
+  "lld": {
+    "article": "Ladin_language",
+    "name": "Ladin"
+  },
+  "lmo": {
+    "article": "Lombard_language",
+    "name": "Lombard"
+  },
+  "ln": {
+    "article": "Lingala",
+    "name": "Lingala"
+  },
+  "lt": {
+    "article": "Lithuanian_language",
+    "name": "Lithuanian"
+  },
+  "ltg": {
+    "article": "Latgalian_language",
+    "name": "Latgalian"
+  },
+  "lud": {
+    "article": "Ludic_language",
+    "name": "Ludian"
+  },
+  "lup": {
+    "article": "Lumbu_language",
+    "name": "Lumbu"
+  },
+  "mg": {
+    "article": "Malagasy_language",
+    "name": "Malagasy"
+  },
+  "mi": {
+    "article": "M\u0101ori_language",
+    "name": "M\u0101ori"
+  },
+  "min": {
+    "article": "Minangkabau_language",
+    "name": "Minangkabau"
+  },
+  "mqs": {
+    "article": "West_Makian_language",
+    "name": "West Makian"
+  },
+  "ms": {
+    "article": "Malay_language",
+    "name": "Malay"
+  },
+  "mwl": {
+    "article": "Mirandese_language",
+    "name": "Mirandese"
+  },
+  "ng": {
+    "article": "Ndonga",
+    "name": "Ndonga"
+  },
+  "non": {
+    "article": "Old_Norse",
+    "name": "Old Norse"
+  },
+  "ny": {
+    "article": "Chewa_language",
+    "name": "Nyanja"
+  },
+  "oc": {
+    "article": "Occitan_language",
+    "name": "Occitan"
+  },
+  "odt": {
+    "article": "Old_Dutch",
+    "name": "Old Dutch"
+  },
+  "oj": {
+    "article": "Ojibwe_language",
+    "name": "Ojibwa"
+  },
+  "olo": {
+    "article": "Livvi-Karelian_language",
+    "name": "Livvi"
+  },
+  "om": {
+    "article": "Oromo_language",
+    "name": "Oromo"
+  },
+  "orv": {
+    "article": "Old_East_Slavic",
+    "name": "Old Russian"
+  },
+  "osp": {
+    "article": "Old_Spanish",
+    "name": "Old Spanish"
+  },
+  "pam": {
+    "article": "Kapampangan_language",
+    "name": "Pampanga"
+  },
+  "pap": {
+    "article": "Papiamento",
+    "name": "Papiamento"
+  },
+  "pms": {
+    "article": "Piedmontese_language",
+    "name": "Piedmontese"
+  },
+  "pt": {
+    "article": "Portuguese_language",
+    "name": "Portuguese"
+  },
+  "qu": {
+    "article": "Quechuan_languages",
+    "name": "Quechua"
+  },
+  "qya": {
+    "article": "Quenya",
+    "name": "Quenya"
+  },
+  "rn": {
+    "article": "Kirundi",
+    "name": "Rundi"
+  },
+  "ro": {
+    "article": "Romanian_language",
+    "name": "Romanian"
+  },
+  "roa-brg": {
+    "article": "Burgundian_language_(O\u00efl)",
+    "name": "Romance languages"
+  },
+  "roa-opt": {
+    "article": "Galician\u2013Portuguese",
+    "name": "Romance languages"
+  },
+  "rom": {
+    "article": "Romani_language",
+    "name": "Romany"
+  },
+  "rw": {
+    "article": "Kinyarwanda",
+    "name": "Kinyarwanda"
+  },
+  "sc": {
+    "article": "Sardinian_language",
+    "name": "Sardinian"
+  },
+  "scn": {
+    "article": "Sicilian_language",
+    "name": "Sicilian"
+  },
+  "sgs": {
+    "article": "Samogitian_language",
+    "name": "Samogitian"
+  },
+  "shp": {
+    "article": "Shipibo\u2013Konibo_language",
+    "name": "Shipibo-Conibo"
+  },
+  "sjn": {
+    "article": "Sindarin",
+    "name": "Sindarin"
+  },
+  "sla-pro": {
+    "article": "Proto-Slavic_language",
+    "name": "Slavic languages"
+  },
+  "slr": {
+    "article": "Salar_language",
+    "name": "Salar"
+  },
+  "smn": {
+    "article": "Inari_S\u00e1mi_language",
+    "name": "Inari Sami"
+  },
+  "sn": {
+    "article": "Shona_language",
+    "name": "Shona"
+  },
+  "so": {
+    "article": "Somali_language",
+    "name": "Somali"
+  },
+  "sr": {
+    "article": "Serbian_language",
+    "name": "Serbian"
+  },
+  "su": {
+    "article": "Sundanese_language",
+    "name": "Sundanese"
+  },
+  "sw": {
+    "article": "Swahili",
+    "name": "Swahili"
+  },
+  "tft": {
+    "article": "Ternate_language",
+    "name": "Ternate"
+  },
+  "tk": {
+    "article": "Turkmen_language",
+    "name": "Turkmen"
+  },
+  "tlh": {
+    "article": "Klingon_language",
+    "name": "Klingon"
+  },
+  "tok": {
+    "article": "Toki_Pona",
+    "name": "Toki Pona"
+  },
+  "tpw": {
+    "article": "Tupi_language",
+    "name": "Tup\u00ed"
+  },
+  "tr": {
+    "article": "Turkish_language",
+    "name": "Turkish"
+  },
+  "ttj": {
+    "article": "Tooro_language",
+    "name": "Tooro"
+  },
+  "vec": {
+    "article": "Venetian_language",
+    "name": "Venetian"
+  },
+  "vep": {
+    "article": "Veps_language",
+    "name": "Veps"
+  },
+  "vo": {
+    "article": "Volap\u00fck",
+    "name": "Volap\u00fck"
+  },
+  "vot": {
+    "article": "Votic_language",
+    "name": "Votic"
+  },
+  "vro": {
+    "article": "V\u00f5ro_language",
+    "name": "V\u00f5ro"
+  },
+  "wo": {
+    "article": "Wolof_language",
+    "name": "Wolof"
+  },
+  "x-adunaic": {
+    "article": "Ad\u00fbnaic",
+    "name": "Ad\u00fbnaic"
+  },
+  "x-blackspeech": {
+    "article": "Black_Speech",
+    "name": "Black Speech"
+  },
+  "x-gnomish": {
+    "article": "Languages_constructed_by_Tolkien#Elvish_languages",
+    "name": "Gnomish"
+  },
+  "x-ilkorin": {
+    "article": "Elvish_languages_of_Middle-earth",
+    "name": "Ilkorin"
+  },
+  "x-khuzdul": {
+    "article": "Khuzdul",
+    "name": "Khuzdul"
+  },
+  "x-nandorin": {
+    "article": "Elvish_languages_of_Middle-earth#Internal_history",
+    "name": "Nandorin"
+  },
+  "x-rohirric": {
+    "article": "Languages_constructed_by_Tolkien#Rohirric",
+    "name": "Rohirric"
+  },
+  "x-telerin": {
+    "article": "Elvish_languages_of_Middle-earth#Internal_history",
+    "name": "Telerin"
+  },
+  "x-valarin": {
+    "article": "Valarin",
+    "name": "Valarin"
+  },
+  "x-westron": {
+    "article": "Westron",
+    "name": "Westron"
+  },
+  "xh": {
+    "article": "Xhosa_language",
+    "name": "Xhosa"
+  },
+  "ykg": {
+    "article": "Tundra_Yukaghir_language",
+    "name": "Northern Yukaghir"
+  },
+  "yo": {
+    "article": "Yoruba_language",
+    "name": "Yoruba"
+  },
+  "zu": {
+    "article": "Zulu_language",
+    "name": "Zulu"
+  }
+}

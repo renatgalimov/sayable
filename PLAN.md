@@ -4,11 +4,12 @@ Each step gets its own pull request. Check it off when the pull request is merge
 
 - [x] Project plan and license.
 - [x] Repository guardrails: pre-commit checks, CI, and contributor setup.
-- [ ] Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
+- [x] Model generation: define the shared format, build the model, document data sources and licenses, and add reproducibility checks and reference vectors.
+- [ ] Interactive game explaining how phrases encode 64 bits.
 - [ ] Rust implementation.
 - [ ] Python implementation.
 - [ ] JavaScript implementation.
-- [ ] Elm implementation.
+- [ ] Elm implementation and game remake in Elm.
 
 ## Format and compatibility
 
