@@ -31,4 +31,12 @@ model.contexts.forEach((context, row) => {
     checkChoices(state, table[row], bits);
   }
 });
+const data = JSON.parse(html.match(/<script id="origin-data" type="application\/json">(.*?)<\/script>/s)[1]);
+function token(value) { return model.tokens.indexOf(value); }
+assert.equal(game.exclusion(model, data, 'ending', token('^ma'), token('de$')), 'blocked');
+assert.equal(game.exclusion(model, data, 'ending', token('^pr'), token('nd$')), 'vowel');
+assert.equal(game.exclusion(model, data, 'ending', token('^ma'), token('aa$')), 'triple');
+assert.equal(game.exclusion(model, data, 'middle', token('^ma'), token('ey')), 'join');
+assert.equal(game.exclusion(model, data, 'middle', token('^ma'), token('ar')), 'conflict');
+assert.equal(game.exclusion(model, data, 'middle', token('^ma'), token('at')), 'unselected');
 console.log(`All ${model.begin.length} beginnings and ${model.contexts.length} context rows match the model at every choice index`);

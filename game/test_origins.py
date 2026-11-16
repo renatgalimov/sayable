@@ -29,6 +29,11 @@ class OriginsTest(unittest.TestCase):
             expected = [line.strip() for line in stream]
         self.assertEqual(data.get('words'), expected, 'the game must include the exact training dictionary')
 
+    def test_letter_trigram_counts_match_the_compiler(self):
+        import compile_phrase as phrase
+        self.assertEqual(self.data['trigram_counts'], dict(phrase.trigram_counts(self.data['words'])))
+        self.assertEqual(self.data['trigram_minimum'], phrase.MIN_TRIGRAM_WORDS)
+
     def test_pair_index_contains_every_corpus_token_occurrence(self):
         import compile_phrase as phrase
 

@@ -58,5 +58,28 @@ function pick(model, state, index) {
     bits: state.bits + step.bits, complete: tokens.length === state.steps.length};
 }
 
-const PhraseGame = {layouts, layoutOptions, start, options, pick};
+function exclusion(model, data, kind, previous, token) {
+  if (kind === 'beginning') return model.begin.includes(token) ? null : 'unselected';
+  const row = previous < 256 ? model.begin.indexOf(previous) : 128 + previous - 512;
+  if (row < 0 || model.contexts[row] !== previous) throw new Error('Invalid context');
+  const selected = kind === 'middle' ? model.middle[row] : model.end32[row];
+  if (selected.includes(token)) return null;
+  if ((model.banned[String(previous)] || []).includes(token)) return 'blocked';
+  const text = id => model.tokens[id].replace(/^\^|\$$/g, '');
+  const before = text(previous), after = text(token);
+  if (previous < 256 && !/[aeiouy]/.test(before) && !/[aeiouy]/.test(after)) return 'vowel';
+  if (/(.)\1\1|[aeiou]{3}/.test(before.slice(-2) + after)) return 'triple';
+  const join = before.slice(-2) + after.slice(0, 2);
+  const minimum = model.relaxed[String(previous)] ?? data.trigram_minimum;
+  for (let i = 0; i + 3 <= join.length; i++) {
+    if ((data.trigram_counts[join.slice(i, i + 3)] || 0) < minimum) return 'join';
+  }
+  for (const chosen of model.middle[row].concat(model.end32[row])) {
+    const value = text(chosen);
+    if (after.startsWith(value) || value.startsWith(after)) return 'conflict';
+  }
+  return 'unselected';
+}
+
+const PhraseGame = {layouts, layoutOptions, start, options, pick, exclusion};
 if (typeof module !== 'undefined') module.exports = PhraseGame;

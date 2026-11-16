@@ -13,7 +13,6 @@ let prefix = [];
 let state = null;
 let history = [];
 let forced = [];
-let inspectChoices = false;
 
 function node(tag, cls, value) {
   const element = document.createElement(tag);
@@ -158,23 +157,41 @@ function layoutPanel() {
 }
 function excludedDetails(step) {
   const previous = state.tokens.at(-1);
-  const allowed = new Set(step.choices);
   const start = step.kind === 'beginning' ? 0 : step.kind === 'middle' ? 512 : 256;
   const end = step.kind === 'beginning' ? 256 : step.kind === 'middle' ? 1024 : 512;
-  const banned = new Set(step.kind === 'beginning' ? [] : (model.banned[String(previous)] || []));
-  const blocked = [], other = [];
-  for (let id = start; id < end; id++) if (!allowed.has(id)) (banned.has(id) ? blocked : other).push(id);
-  const container = node('div');
-  function group(label, ids) {
-    if (!ids.length) return;
-    const details = node('details');
-    details.append(node('summary', '', `${label} (${ids.length})`));
-    const chips = node('div', 'muted-chips');
-    ids.forEach(id => chips.append(node('span', '', text(id))));
-    details.append(chips); container.append(details);
+  const labels = {
+    blocked: 'Blocked by the word-list filter',
+    vowel: 'Needs a vowel',
+    triple: 'Three vowels or repeated letters',
+    join: 'Rare letter joins',
+    conflict: 'Conflicts with a selected token',
+    unselected: 'Not selected for this list'
+  };
+  const explanations = {
+    blocked: 'The compiler restricted this transition using its word-list checks. The restriction applies even when the triggering word is not in your current prefix.',
+    vowel: 'This beginning and token together have no vowel. For this check, y counts as a vowel.',
+    triple: 'This combination contains three consecutive vowels or three of the same letter.',
+    join: 'At least one three-letter join occurs in too few distinct training words. This includes unlikely consonant combinations.',
+    conflict: 'This token has a prefix relationship with a token in the final middle or ending list.',
+    unselected: 'The compiler did not select this token for this list. Ranking, conflicts and list capacity can affect selection.'
+  };
+  const groups = Object.fromEntries(Object.keys(labels).map(key => [key, []]));
+  for (let token = start; token < end; token++) {
+    const reason = PhraseGame.exclusion(model, originData, step.kind, previous, token);
+    if (reason) groups[reason].push(token);
   }
-  group('Excluded by the word-list filter', blocked);
-  group('Other candidates not in this list', other);
+  const container = node('div');
+  container.append(node('p', 'note', 'These checks compare candidates with the final model; they do not record the exact order in which candidates were rejected.'));
+  for (const [reason, tokens] of Object.entries(groups)) {
+    if (!tokens.length) continue;
+    const group = node('details');
+    group.dataset.reason = reason;
+    group.append(node('summary', '', `${labels[reason]} (${tokens.length})`));
+    group.append(node('p', 'note', explanations[reason]));
+    const chips = node('div', 'muted-chips');
+    for (const token of tokens) chips.append(node('span', '', text(token)));
+    group.append(chips); container.append(group);
+  }
   return container;
 }
 function wordInfo(container, index) {
@@ -213,9 +230,10 @@ function showOrigin(line, previous, token) {
   const example = originData.examples[key];
   const matches = originData.postings[key] || [];
   line.replaceChildren();
+  const label = previous === -1 ? `“${text(token)}”` : `“${text(previous)}” → “${text(token)}”`;
   line.append(node('p', '', matches.length
-    ? `${plural(matches.length, 'occurrence')} in the normalized training dictionary, using the compiler’s token boundaries.`
-    : 'This token combination does not occur in the compiler’s segmentation of the training dictionary.'));
+    ? `${label}: ${plural(matches.length, 'occurrence')} in the normalized training dictionary, using the compiler’s token boundaries.`
+    : `${label}: not found in the compiler’s segmentation of the training dictionary.`));
   if (example) {
     const [, original, code, url, start, end] = example;
     const chars = Array.from(original);
@@ -233,6 +251,40 @@ function showOrigin(line, previous, token) {
     line.append(originalLine);
   }
   if (matches.length) {
+    const counts = new Map();
+    for (const word of new Set(matches.map(([word]) => word))) {
+      const groups = new Set(originData.word_sources[word].map(source => originData.sources[source][0]));
+      for (const code of groups) counts.set(code, (counts.get(code) || 0) + 1);
+    }
+    const codes = [...counts.keys()].sort((a, b) => counts.get(b) - counts.get(a) ||
+      originData.languages[a].name.localeCompare(originData.languages[b].name));
+    function languageLink(code) {
+      const language = originData.languages[code];
+      const [article, section] = language.article.split('#');
+      const link = node('a', '', language.name); link.dataset.languageGroup = code;
+      link.href = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(article) + (section ? '#' + encodeURIComponent(section) : '');
+      link.target = '_blank'; link.rel = 'noopener noreferrer';
+      return link;
+    }
+    const languages = node('p', 'origin-languages');
+    languages.append(document.createTextNode(`Recorded source language groups for matching training words (${codes.length}): `));
+    codes.slice(0, 3).forEach((code, index) => {
+      if (index) languages.append(document.createTextNode(', '));
+      languages.append(languageLink(code));
+    });
+    if (codes.length > 3) languages.append(document.createTextNode(` and ${codes.length - 3} more`));
+    languages.append(document.createTextNode('.'));
+    line.append(languages);
+    if (codes.length > 3) {
+      const all = node('details', 'origin-all-languages');
+      all.append(node('summary', '', `Show all ${codes.length} language groups`));
+      const list = node('p');
+      codes.forEach((code, index) => {
+        if (index) list.append(document.createTextNode(', '));
+        list.append(languageLink(code));
+      });
+      all.append(list); line.append(all);
+    }
     const details = node('details');
     details.append(node('summary', '', `Browse all ${matches.length.toLocaleString('en-US')} matching occurrences`));
     const list = node('div', 'origin-list');
@@ -271,23 +323,27 @@ function tokenPanel() {
     const previous = state.steps[last].kind === 'beginning' ? -1 : state.tokens[last - 1];
     showOrigin(origin, previous, state.tokens[last]);
   }
-  const inspect = node('button', 'inspect-choice'); inspect.id = 'inspect-choice'; inspect.type = 'button';
-  function updateInspect() {
-    inspect.textContent = inspectChoices ? 'Inspecting first: on' : 'Inspect choices before picking';
-    inspect.setAttribute('aria-pressed', String(inspectChoices));
-    if (!inspectChoices) origin.querySelector('[data-confirm-choice]')?.remove();
-  }
-  inspect.addEventListener('click', () => { inspectChoices = !inspectChoices; updateInspect(); });
-  updateInspect();
+  let previewing = false;
   const grid = node('div', 'token-grid'); grid.setAttribute('aria-label', `${step.kind} choices`);
   step.choices.forEach((id, index) => {
     const button = node('button', 'token', text(id)); button.type = 'button';
     button.dataset.choice = index; button.setAttribute('aria-label', `${text(id)}, choice ${index} of ${step.choices.length - 1}`);
     const previous = step.kind === 'beginning' ? -1 : state.tokens.at(-1);
-    button.addEventListener('mouseenter', () => { if (!inspectChoices) showOrigin(origin, previous, id); });
-    button.addEventListener('focus', () => { if (!inspectChoices) showOrigin(origin, previous, id); });
+    let touched = false;
+    button.addEventListener('pointerdown', event => { touched = event.pointerType === 'touch'; });
+    button.addEventListener('pointercancel', () => { touched = false; });
+    button.addEventListener('pointermove', event => {
+      if (previewing && event.pointerType === 'mouse') { previewing = false; showOrigin(origin, previous, id); }
+    });
+    button.addEventListener('mouseenter', () => { if (!previewing) showOrigin(origin, previous, id); });
+    button.addEventListener('focus', () => {
+      if (!touched) { previewing = false; showOrigin(origin, previous, id); }
+    });
     button.addEventListener('click', event => {
-      if (inspectChoices) {
+      const touch = event.pointerType === 'touch' || (event.detail > 0 && touched);
+      touched = false;
+      if (touch) {
+        previewing = true;
         showOrigin(origin, previous, id);
         const confirm = node('button', '', `Choose “${text(id)}”`); confirm.type = 'button';
         confirm.dataset.confirmChoice = index;
@@ -305,7 +361,7 @@ function tokenPanel() {
     : 'The choices depend on the previous token. Scroll the list to see them all.');
   const last = state.tokens.length - 1;
   const picked = last < 0 ? null : node('p', 'context', `You picked “${text(state.tokens[last])}”: choice ${state.picks[last]}, or ${state.picks[last].toString(2).padStart(state.steps[last].bits, '0')} in binary. It carries ${state.steps[last].bits} bits.`);
-  $('panel').replaceChildren(...[picked, inspect, grid, note, origin, excludedDetails(step)].filter(Boolean));
+  $('panel').replaceChildren(...[picked, grid, note, origin, excludedDetails(step)].filter(Boolean));
 }
 function resultPanel() {
   $('step').textContent = '3 / Complete'; $('heading').textContent = 'You filled 64 bits.';

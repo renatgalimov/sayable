@@ -51,6 +51,15 @@ async function click(selector) {
   await send('Input.dispatchMouseEvent', {type:'mousePressed', button:'left', clickCount:1, ...box});
   await send('Input.dispatchMouseEvent', {type:'mouseReleased', button:'left', clickCount:1, ...box});
 }
+async function hover(selector) {
+  const box = await evaluate(`(() => { const element = document.querySelector(${JSON.stringify(selector)}); element.scrollIntoView({block:'center'}); const r = element.getBoundingClientRect(); return {x:r.x + r.width / 2, y:r.y + r.height / 2}; })()`);
+  await send('Input.dispatchMouseEvent', {type:'mouseMoved', ...box});
+}
+async function tap(selector) {
+  const box = await evaluate(`(() => { const element = document.querySelector(${JSON.stringify(selector)}); element.scrollIntoView({block:'center'}); const r = element.getBoundingClientRect(); return {x:r.x + r.width / 2, y:r.y + r.height / 2}; })()`);
+  await send('Input.dispatchTouchEvent', {type:'touchStart', touchPoints:[box]});
+  await send('Input.dispatchTouchEvent', {type:'touchEnd', touchPoints:[]});
+}
 async function shot(name) {
   const result = await send('Page.captureScreenshot', {format:'png', captureBeyondViewport:true});
   const dest = path.join(output, name); fs.writeFileSync(dest, Buffer.from(result.data, 'base64'));
@@ -88,6 +97,33 @@ assert.equal(await evaluate(`document.activeElement.id`), 'heading', 'keyboard c
 await evaluate(`document.getElementById('reset').click()`);
 const dictionaryExample = await evaluate(`(() => { const line = document.createElement('div'); showOrigin(line, 58, 361); return line.textContent; })()`);
 assert.ok(dictionaryExample.includes('dolu'), 'token matches include the full training dictionary');
+const filterGroups = await evaluate(`(() => {
+  const saved = state;
+  try {
+    state = {tokens:[0]};
+    const panel = excludedDetails({kind:'middle', choices:model.middle[0]});
+    return [...panel.querySelectorAll('[data-reason]')].map(group => group.dataset.reason).sort();
+  } finally { state = saved; }
+})()`);
+assert.deepEqual(filterGroups, ['blocked', 'conflict', 'join', 'triple', 'unselected'].sort(),
+  'excluded tokens show the real phrase-v8 filter categories');
+const pairLanguages = await evaluate(`(() => {
+  const line = document.createElement('div'); showOrigin(line, 58, 361);
+  const expected = new Set((originData.postings['58,361'] || []).flatMap(([word]) =>
+    originData.word_sources[word].map(source => originData.sources[source][0])));
+  const shown = [...line.querySelectorAll('[data-language-group]')].map(link => link.dataset.languageGroup);
+  return {expected:[...expected].sort(), shown:[...new Set(shown)].sort()};
+})()`);
+assert.ok(pairLanguages.expected.length > 1, 'test pair should appear in more than one source group');
+assert.deepEqual(pairLanguages.shown, pairLanguages.expected, 'show every recorded language group for a token pair');
+const examplePair = await evaluate(`(() => {
+  const line = document.createElement('div');
+  showOrigin(line, model.tokens.indexOf('^ab'), model.tokens.indexOf('an'));
+  return {text: line.textContent, groups: [...new Set([...line.querySelectorAll('[data-language-group]')].map(link => link.dataset.languageGroup))]};
+})()`);
+assert.ok(examplePair.text.includes('abantu'), 'ab → an includes its indexed original example');
+assert.ok(examplePair.groups.includes('rw') && examplePair.groups.length === 12,
+  'ab → an includes Kinyarwanda and all other recorded source groups');
 const matchInfo = await evaluate(`(() => {
   const line = document.createElement('div'); showOrigin(line, 58, 361);
   line.querySelector('[data-word-index="' + originData.words.indexOf('dolu') + '"]').click();
@@ -187,28 +223,59 @@ console.log('All 16 layouts match the shared zero-choice vectors');
 await shot('mobile-complete.png');
 await evaluate(`document.getElementById('reset').click(); document.querySelector('[data-layout="2"]').click(); document.querySelector('[data-layout="4"]').click(); document.querySelector('[data-layout="4"]').click()`);
 assert.equal(await evaluate(`document.getElementById('stage').dataset.phase`), 'token');
-assert.ok(await evaluate(`document.getElementById('inspect-choice')`), 'touch users can inspect a token before choosing it');
-await evaluate(`document.getElementById('inspect-choice').click(); document.querySelector('[data-choice="1"]').click()`);
-assert.equal(await evaluate(`state.tokens.length`), 0, 'inspect mode must not immediately select a token');
-assert.ok(await evaluate(`document.querySelector('.origin [data-confirm-choice]')`), 'inspected token has a confirm button');
+assert.equal(await evaluate(`document.getElementById('inspect-choice')`), null, 'preview has no user-facing toggle');
+await send('Emulation.setTouchEmulationEnabled', {enabled:true, maxTouchPoints:1});
+await tap('[data-choice="1"]');
+assert.equal(await evaluate(`state.tokens.length`), 0, 'touching a token previews it rather than selecting it');
+assert.ok(await evaluate(`document.querySelector('.origin [data-confirm-choice]')`), 'touched token has a confirm button');
+await hover('[data-choice="2"]');
+assert.equal(await evaluate(`document.querySelector('.origin a b')?.textContent`), await evaluate(`document.querySelector('[data-choice="2"]').textContent`),
+  'mouse hover after touch previews the hovered token');
+assert.equal(await evaluate(`document.querySelector('.origin [data-confirm-choice]')`), null, 'mouse hover clears the old touch confirmation');
+await tap('[data-choice="1"]');
+await evaluate(`document.querySelector('[data-choice="2"]').focus()`);
+assert.equal(await evaluate(`document.querySelector('.origin a b')?.textContent`), await evaluate(`document.querySelector('[data-choice="2"]').textContent`),
+  'keyboard focus after touch previews the focused token');
+assert.equal(await evaluate(`document.querySelector('.origin [data-confirm-choice]')`), null, 'keyboard focus clears the old touch confirmation');
+await tap('[data-choice="2"]');
+assert.equal(await evaluate(`state.tokens.length`), 0, 'touching another token only changes the preview');
+assert.equal(await evaluate(`document.querySelector('.origin [data-confirm-choice]').dataset.confirmChoice`), '2');
 await shot('mobile-inspect.png');
-await evaluate(`document.querySelector('.origin [data-confirm-choice]').click()`);
-assert.equal(await evaluate(`state.tokens[0]`), await evaluate(`model.begin[1]`), 'confirm selects the inspected real-model token');
-await evaluate(`document.getElementById('undo').click(); document.getElementById('inspect-choice').click()`);
+await tap('.origin [data-confirm-choice]');
+assert.equal(await evaluate(`state.tokens[0]`), await evaluate(`model.begin[2]`), 'confirm selects the touched real-model token');
+await evaluate(`document.getElementById('undo').click()`);
+await click('[data-choice="3"]');
+assert.equal(await evaluate(`state.tokens[0]`), await evaluate(`model.begin[3]`), 'a mouse still chooses immediately on a touch-capable device');
+await evaluate(`document.getElementById('undo').click()`);
+await send('Emulation.setTouchEmulationEnabled', {enabled:false});
 assert.equal(await evaluate(`document.querySelectorAll('[data-choice]').length`), 128);
 assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true, 'mobile token page overflow');
 await shot('mobile-tokens.png');
 await evaluate(`document.querySelector('[data-choice="1"]').focus()`);
 assert.equal(await evaluate(`document.querySelector('.origin a b')?.textContent`), await evaluate(`document.querySelector('[data-choice="1"]').textContent`), 'origin highlights the focused token');
-assert.equal(await evaluate(`document.querySelectorAll('.origin a').length`), 2, 'origin and language are linked');
+assert.ok((await evaluate(`document.querySelectorAll('.origin a').length`)) >= 2, 'origin and language are linked');
 await send('Input.dispatchKeyEvent', {type:'keyDown', key:'Enter', code:'Enter', windowsVirtualKeyCode:13, text:'\r', unmodifiedText:'\r'});
 await send('Input.dispatchKeyEvent', {type:'keyUp', key:'Enter', code:'Enter', windowsVirtualKeyCode:13});
 assert.equal(await evaluate(`document.activeElement.id`), 'heading', 'keyboard token choice retains focus');
 assert.equal(await evaluate(`document.querySelectorAll('[data-choice]').length`), 32);
 assert.ok((await evaluate(`document.getElementById('panel').textContent`)).includes('0000001'), 'last chosen bits are shown');
 await shot('mobile-token-origin.png');
+await evaluate(`document.querySelector('[data-reason]').open = true; document.querySelector('[data-reason]').scrollIntoView({block:'start'})`);
+assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true, 'mobile filter explanations fit the viewport');
+await shot('mobile-filter-reasons.png');
 await evaluate(`document.getElementById('undo').click()`);
 assert.equal(await evaluate(`document.querySelectorAll('[data-choice]').length`), 128);
+await evaluate(`document.getElementById('reset').click(); document.querySelector('[data-layout="2"]').click(); document.querySelector('[data-layout="2"]').click(); document.querySelector('[data-layout="2"]').click()`);
+await send('Emulation.setTouchEmulationEnabled', {enabled:true, maxTouchPoints:1});
+for (let i = 0; i < 10; i++) {
+  await tap('[data-choice="0"]');
+  assert.equal(await evaluate(`state.tokens.length`), i, `touch ${i + 1} should preview`);
+  await tap('.origin [data-confirm-choice]');
+  assert.equal(await evaluate(`state.tokens.length`), i + 1, `confirm ${i + 1} should select`);
+}
+assert.equal(await evaluate(`document.querySelector('.result-phrase').textContent`), vectors[0].phrase,
+  'complete touchscreen playthrough matches the shared vector');
+await send('Emulation.setTouchEmulationEnabled', {enabled:false});
 await evaluate(`document.getElementById('reset').click(); document.querySelector('[data-layout="2"]').click(); document.querySelector('[data-layout="2"]').click()`);
 assert.equal(await evaluate(`document.getElementById('stage').dataset.phase`), 'layout');
 assert.equal(await evaluate(`document.getElementById('stage').dataset.prefix`), '2,2');

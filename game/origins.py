@@ -86,4 +86,6 @@ def build(model):
         raise ValueError('A training word is missing source matches')
     return {'languages': languages, 'examples': {f'{p},{t}': value for (p, t), value in examples.items()},
             'words': words, 'postings': postings, 'sources': sources, 'word_sources': word_sources,
+            'trigram_counts': dict(sorted(phrase.trigram_counts(words).items())),
+            'trigram_minimum': phrase.MIN_TRIGRAM_WORDS,
             'word_originals': {key: sorted(values) for key, values in word_originals.items()}}
