@@ -121,11 +121,19 @@ const filterGroups = await evaluate(`(() => {
 })()`);
 assert.deepEqual(filterGroups, ['blocked', 'conflict', 'join', 'triple', 'unselected'].sort(),
   'excluded tokens show the real phrase-v8 filter categories');
+const groupLinkSelector = '.origin-languages [data-language-group], .origin-all-languages [data-language-group]';
+const missingGroup = await evaluate(`(() => {
+  const line = document.createElement('div');
+  showOrigin(line, model.tokens.indexOf('^ab'), model.tokens.indexOf('an'));
+  line.querySelectorAll('.origin-languages [data-language-group="rw"], .origin-all-languages [data-language-group="rw"]').forEach(link => link.remove());
+  return [...line.querySelectorAll(${JSON.stringify(groupLinkSelector)})].map(link => link.dataset.languageGroup);
+})()`);
+assert.ok(!missingGroup.includes('rw'), 'a missing group must not be masked by its example link');
 const pairLanguages = await evaluate(`(() => {
   const line = document.createElement('div'); showOrigin(line, 58, 361);
   const expected = new Set((originData.postings['58,361'] || []).flatMap(([word]) =>
     originData.word_sources[word].map(source => originData.sources[source][0])));
-  const shown = [...line.querySelectorAll('[data-language-group]')].map(link => link.dataset.languageGroup);
+  const shown = [...line.querySelectorAll(${JSON.stringify(groupLinkSelector)})].map(link => link.dataset.languageGroup);
   return {expected:[...expected].sort(), shown:[...new Set(shown)].sort()};
 })()`);
 assert.ok(pairLanguages.expected.length > 1, 'test pair should appear in more than one source group');
@@ -142,7 +150,7 @@ assert.ok(linkedExample.name, 'example language name remains visible');
 const examplePair = await evaluate(`(() => {
   const line = document.createElement('div');
   showOrigin(line, model.tokens.indexOf('^ab'), model.tokens.indexOf('an'));
-  return {text: line.textContent, groups: [...new Set([...line.querySelectorAll('[data-language-group]')].map(link => link.dataset.languageGroup))]};
+  return {text: line.textContent, groups: [...new Set([...line.querySelectorAll(${JSON.stringify(groupLinkSelector)})].map(link => link.dataset.languageGroup))]};
 })()`);
 assert.ok(examplePair.text.includes('abantu'), 'ab → an includes its indexed original example');
 assert.ok(examplePair.groups.includes('rw') && examplePair.groups.length === 12,
