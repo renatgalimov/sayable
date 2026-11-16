@@ -72,6 +72,7 @@ summary{cursor:pointer;color:var(--ink);min-height:36px;padding:7px 0}
 .why{margin-top:12px}
 .why p{margin:6px 0}
 #announcer{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:599px){.phrase{position:sticky;top:0;z-index:2;background:var(--card)}}
 @media(min-width:600px){main{padding:38px 24px 50px}
 .board{padding:24px}
 .gauge{grid-template-columns:repeat(64,minmax(0,1fr))}
@@ -126,7 +127,6 @@ summary{cursor:pointer;color:var(--ink);min-height:36px;padding:7px 0}
       <button type="button" id="reset">Start over</button>
     </div>
     <span id="announcer" aria-live="polite"></span>
-  </section>
   <details class="dictionary">
     <summary>Browse the training dictionary</summary>
     <p class="note">These are the normalized training words, not a list of generated phrases. Some words cannot be split into model tokens.</p>
@@ -137,6 +137,7 @@ summary{cursor:pointer;color:var(--ink);min-height:36px;padding:7px 0}
     <div id="dictionary-results" class="dictionary-results"></div>
     <button id="dictionary-more" type="button">Show more</button>
   </details>
+  </section>
   <p class="footer">Sayable is reversible encoding, not encryption. The model filters against specific word lists; it cannot catch every offensive word. Model data: CC BY-SA 4.0. <a href="https://github.com/renatgalimov/sayable/blob/main/models/NOTICE.md" target="_blank" rel="noopener noreferrer">Sources and licenses</a>.</p>
 </main>
 <script id="model-data" type="application/json">__MODEL__</script>

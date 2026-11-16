@@ -60,8 +60,8 @@ async function tap(selector) {
   await send('Input.dispatchTouchEvent', {type:'touchStart', touchPoints:[box]});
   await send('Input.dispatchTouchEvent', {type:'touchEnd', touchPoints:[]});
 }
-async function shot(name) {
-  const result = await send('Page.captureScreenshot', {format:'png', captureBeyondViewport:true});
+async function shot(name, captureBeyondViewport = true) {
+  const result = await send('Page.captureScreenshot', {format:'png', captureBeyondViewport});
   const dest = path.join(output, name); fs.writeFileSync(dest, Buffer.from(result.data, 'base64'));
   console.log('Screenshot:', dest);
 }
@@ -78,6 +78,20 @@ for (let i = 0; i < 100 && !(await evaluate(`document.querySelector('#dictionary
 assert.ok(await evaluate(`document.querySelector('#dictionary-count')?.textContent.includes('250,584')`), 'full training dictionary must load');
 await click('.dictionary > summary');
 assert.equal(await evaluate(`document.querySelector('.dictionary').open`), true, 'pointer opens the dictionary');
+const stickyPhrase = await evaluate(`(() => {
+  const phrase = document.getElementById('phrase');
+  window.scrollTo(0, 0);
+  const original = phrase.getBoundingClientRect().top;
+  window.scrollTo(0, original - 30);
+  const above = phrase.getBoundingClientRect().top;
+  window.scrollTo(0, document.documentElement.scrollHeight);
+  const below = phrase.getBoundingClientRect().top;
+  window.scrollTo(0, 0);
+  return {original, above, below};
+})()`);
+assert.ok(stickyPhrase.original > 40 && Math.abs(stickyPhrase.above - 30) < 2,
+  'the phrase scrolls normally before reaching the top');
+assert.ok(Math.abs(stickyPhrase.below) < 2, 'the phrase stays at the top while scrolling through the dictionary');
 await click('#dictionary-search');
 await send('Input.insertText', {text:'dolu'});
 assert.ok((await evaluate(`document.getElementById('dictionary-results').textContent`)).includes('dolu'), 'dictionary search finds a real indexed word');
@@ -221,6 +235,20 @@ assert.equal(result.length,16); assert.ok(result.every(x => !x.overflow));
 assert.ok(await evaluate(`document.querySelector('#panel .result-origin')`), 'final token provenance remains visible on the result screen');
 console.log('All 16 layouts match the shared zero-choice vectors');
 await shot('mobile-complete.png');
+await width(320, 568);
+await evaluate(`document.querySelector('.dictionary').open = true; window.scrollTo(0, document.documentElement.scrollHeight)`);
+const stickyCompleted = await evaluate(`({top:document.getElementById('phrase').getBoundingClientRect().top,
+  words:[...document.querySelectorAll('#phrase .word')].map(word => word.textContent).join(' '),
+  overflow:document.documentElement.scrollWidth > innerWidth})`);
+assert.ok(Math.abs(stickyCompleted.top) < 2 && !stickyCompleted.overflow, 'completed phrase stays visible on a small phone');
+assert.equal(stickyCompleted.words, vectors[15].phrase, 'sticky phrase matches the completed result');
+await shot('mobile-sticky.png', false);
+await width(320, 320);
+await evaluate(`window.scrollTo(0, document.documentElement.scrollHeight)`);
+assert.ok(Math.abs(await evaluate(`document.getElementById('phrase').getBoundingClientRect().top`)) < 2,
+  'phrase stays at the top in a short mobile viewport');
+await width(390, 844);
+await evaluate(`document.querySelector('.dictionary').open = false; window.scrollTo(0, 0)`);
 await evaluate(`document.getElementById('reset').click(); document.querySelector('[data-layout="2"]').click(); document.querySelector('[data-layout="4"]').click(); document.querySelector('[data-layout="4"]').click()`);
 assert.equal(await evaluate(`document.getElementById('stage').dataset.phase`), 'token');
 assert.equal(await evaluate(`document.getElementById('inspect-choice')`), null, 'preview has no user-facing toggle');
@@ -305,6 +333,7 @@ const oracle = spawnSync('python3', ['-c', `import json,sys\nsys.path.insert(0,$
 assert.equal(oracle.status, 0, oracle.stderr); console.log(oracle.stdout.trim());
 
 await width(1200, 900);
+assert.equal(await evaluate(`getComputedStyle(document.getElementById('phrase')).position`), 'static', 'desktop layout does not stick');
 await evaluate(`document.getElementById('reset').click()`);
 assert.equal(await evaluate(`document.documentElement.scrollWidth <= innerWidth`), true, 'desktop overflow');
 await shot('desktop-start.png');
