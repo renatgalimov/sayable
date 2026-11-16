@@ -130,6 +130,15 @@ const pairLanguages = await evaluate(`(() => {
 })()`);
 assert.ok(pairLanguages.expected.length > 1, 'test pair should appear in more than one source group');
 assert.deepEqual(pairLanguages.shown, pairLanguages.expected, 'show every recorded language group for a token pair');
+const linkedExample = await evaluate(`(() => {
+  const line = document.createElement('div'); showOrigin(line, 58, 361);
+  const code = originData.examples['58,361'][2];
+  const sample = line.querySelector('p:nth-child(2) a:nth-of-type(2)');
+  const group = line.querySelector('.origin-languages [data-language-group="' + code + '"], .origin-all-languages [data-language-group="' + code + '"]');
+  return {sample:sample.href, group:group.href, name:sample.textContent};
+})()`);
+assert.equal(linkedExample.sample, linkedExample.group, 'example and group link to the same language page');
+assert.ok(linkedExample.name, 'example language name remains visible');
 const examplePair = await evaluate(`(() => {
   const line = document.createElement('div');
   showOrigin(line, model.tokens.indexOf('^ab'), model.tokens.indexOf('an'));

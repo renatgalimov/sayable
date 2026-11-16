@@ -40,6 +40,7 @@ for (const layout of game.layouts()) {
   for (let i = 0; i < layout.length; i++) {
     const prefix = layout.slice(0, i);
     const possible = game.layouts().filter(row => prefix.every((n, j) => row[j] === n));
+    assert.deepEqual(game.possibleLayouts(prefix), possible, `matching layouts for ${prefix}`);
     const options = game.layoutOptions(prefix);
     assert.equal(options.reduce((sum, option) => sum + option.leaves, 0), possible.length);
     const next = options.find(option => option.value === layout[i]);
@@ -47,5 +48,11 @@ for (const layout of game.layouts()) {
     assert.equal(next.bits, Math.log2(possible.length / next.leaves));
   }
 }
+assert.deepEqual(game.possibleLayouts([5]), []);
 assert.deepEqual(game.layoutOptions([2, 2, 2, 4]), []);
+for (const previous of [-1, 256, 511, 1024]) {
+  const invalid = {complete:false, tokens:[previous], steps:[null, {kind:'middle'}]};
+  assert.throws(() => game.options(model, invalid), /Invalid context/);
+  assert.throws(() => game.exclusion(model, {}, 'middle', previous, 512), /Invalid context/);
+}
 console.log(`Game logic: ${fixture.vectors.length} shared vectors passed`);

@@ -22,6 +22,10 @@ function node(tag, cls, value) {
 }
 function snapshot() { return {prefix: [...prefix], state, forced: [...forced]}; }
 function save() { history.push(snapshot()); }
+function startLayout() {
+  const index = allLayouts.findIndex(row => row.length === prefix.length && row.every((n, i) => n === prefix[i]));
+  state = PhraseGame.start(model, index);
+}
 function settleLayout() {
   forced = [];
   let options = PhraseGame.layoutOptions(prefix);
@@ -30,10 +34,7 @@ function settleLayout() {
     forced.push(options[0].value);
     options = PhraseGame.layoutOptions(prefix);
   }
-  if (!options.length) {
-    const index = allLayouts.findIndex(row => row.length === prefix.length && row.every((n, i) => n === prefix[i]));
-    state = PhraseGame.start(model, index);
-  }
+  if (!options.length) startLayout();
 }
 function chooseLength(length) {
   save(); prefix.push(length); settleLayout(); render();
@@ -51,9 +52,9 @@ function randomIndex(max) {
 function randomFill() {
   save();
   if (!state) {
-    const possible = allLayouts.filter(row => prefix.every((n, i) => row[i] === n));
+    const possible = PhraseGame.possibleLayouts(prefix);
     prefix = [...possible[randomIndex(possible.length)]];
-    state = PhraseGame.start(model, allLayouts.findIndex(row => row.join(',') === prefix.join(',')));
+    startLayout();
   }
   while (!state.complete) {
     const options = PhraseGame.options(model, state);
@@ -69,7 +70,7 @@ function undo() {
 function reset() { prefix = []; state = null; history = []; forced = []; render(); }
 
 function renderGauge() {
-  const possible = state ? 1 : allLayouts.filter(row => prefix.every((n, i) => row[i] === n)).length;
+  const possible = state ? 1 : PhraseGame.possibleLayouts(prefix).length;
   const layoutBits = Math.log2(allLayouts.length / possible);
   const count = state ? state.bits : layoutBits;
   $('count').textContent = fmt(count);
@@ -234,20 +235,23 @@ function showOrigin(line, previous, token) {
   line.append(node('p', '', matches.length
     ? `${label}: ${plural(matches.length, 'occurrence')} in the normalized training dictionary, using the compiler’s token boundaries.`
     : `${label}: not found in the compiler’s segmentation of the training dictionary.`));
+  function languageLink(code) {
+    const language = originData.languages[code];
+    const [article, section] = language.article.split('#');
+    const link = node('a', '', language.name); link.dataset.languageGroup = code;
+    link.href = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(article) + (section ? '#' + encodeURIComponent(section) : '');
+    link.target = '_blank'; link.rel = 'noopener noreferrer';
+    return link;
+  }
   if (example) {
     const [, original, code, url, start, end] = example;
     const chars = Array.from(original);
     const word = node('a'); word.href = url; word.target = '_blank'; word.rel = 'noopener noreferrer';
     word.append(document.createTextNode(chars.slice(0, start).join('')),
       node('b', '', chars.slice(start, end).join('')), document.createTextNode(chars.slice(end).join('')));
-    const language = originData.languages[code];
-    const link = node('a', '', language.name);
-    const [article, section] = language.article.split('#');
-    link.href = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(article) + (section ? '#' + encodeURIComponent(section) : '');
-    link.target = '_blank'; link.rel = 'noopener noreferrer';
     const originalLine = node('p');
     originalLine.append(document.createTextNode('A recorded original spelling: '), word,
-      document.createTextNode(' ('), link, document.createTextNode(').'));
+      document.createTextNode(' ('), languageLink(code), document.createTextNode(').'));
     line.append(originalLine);
   }
   if (matches.length) {
@@ -258,14 +262,6 @@ function showOrigin(line, previous, token) {
     }
     const codes = [...counts.keys()].sort((a, b) => counts.get(b) - counts.get(a) ||
       originData.languages[a].name.localeCompare(originData.languages[b].name));
-    function languageLink(code) {
-      const language = originData.languages[code];
-      const [article, section] = language.article.split('#');
-      const link = node('a', '', language.name); link.dataset.languageGroup = code;
-      link.href = 'https://en.wikipedia.org/wiki/' + encodeURIComponent(article) + (section ? '#' + encodeURIComponent(section) : '');
-      link.target = '_blank'; link.rel = 'noopener noreferrer';
-      return link;
-    }
     const languages = node('p', 'origin-languages');
     languages.append(document.createTextNode(`Recorded source language groups for matching training words (${codes.length}): `));
     codes.slice(0, 3).forEach((code, index) => {

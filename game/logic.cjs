@@ -14,8 +14,12 @@ function layouts() {
   return result;
 }
 
+function possibleLayouts(prefix) {
+  return layouts().filter(row => prefix.every((n, i) => row[i] === n));
+}
+
 function layoutOptions(prefix) {
-  const possible = layouts().filter(row => prefix.every((n, i) => row[i] === n));
+  const possible = possibleLayouts(prefix);
   if (!possible.length) throw new RangeError('Invalid layout prefix');
   return [2, 3, 4].flatMap(value => {
     const leaves = possible.filter(row => row[prefix.length] === value).length;
@@ -34,14 +38,18 @@ function start(model, index) {
   return {layout: all[index], index, steps, tokens: [], picks: [], words: [], value: BigInt(index), bits: 4, complete: false, phrase: ''};
 }
 
+function row(model, previous) {
+  const index = previous < 256 ? model.begin.indexOf(previous) : 128 + previous - 512;
+  if (index < 0 || index >= model.contexts.length || model.contexts[index] !== previous) throw new Error('Invalid context');
+  return index;
+}
+
 function options(model, state) {
   if (state.complete) return null;
   const step = state.steps[state.tokens.length];
   if (step.kind === 'beginning') return {...step, choices: model.begin};
-  const previous = state.tokens.at(-1);
-  const row = previous < 256 ? model.begin.indexOf(previous) : 128 + previous - 512;
-  if (row < 0 || row >= model.contexts.length || model.contexts[row] !== previous) throw new Error('Invalid context');
-  return {...step, choices: step.kind === 'middle' ? model.middle[row] : model.end32[row]};
+  const index = row(model, state.tokens.at(-1));
+  return {...step, choices: step.kind === 'middle' ? model.middle[index] : model.end32[index]};
 }
 
 function pick(model, state, index) {
@@ -60,9 +68,8 @@ function pick(model, state, index) {
 
 function exclusion(model, data, kind, previous, token) {
   if (kind === 'beginning') return model.begin.includes(token) ? null : 'unselected';
-  const row = previous < 256 ? model.begin.indexOf(previous) : 128 + previous - 512;
-  if (row < 0 || model.contexts[row] !== previous) throw new Error('Invalid context');
-  const selected = kind === 'middle' ? model.middle[row] : model.end32[row];
+  const index = row(model, previous);
+  const selected = kind === 'middle' ? model.middle[index] : model.end32[index];
   if (selected.includes(token)) return null;
   if ((model.banned[String(previous)] || []).includes(token)) return 'blocked';
   const text = id => model.tokens[id].replace(/^\^|\$$/g, '');
@@ -74,12 +81,12 @@ function exclusion(model, data, kind, previous, token) {
   for (let i = 0; i + 3 <= join.length; i++) {
     if ((data.trigram_counts[join.slice(i, i + 3)] || 0) < minimum) return 'join';
   }
-  for (const chosen of model.middle[row].concat(model.end32[row])) {
+  for (const chosen of model.middle[index].concat(model.end32[index])) {
     const value = text(chosen);
     if (after.startsWith(value) || value.startsWith(after)) return 'conflict';
   }
   return 'unselected';
 }
 
-const PhraseGame = {layouts, layoutOptions, start, options, pick, exclusion};
+const PhraseGame = {layouts, possibleLayouts, layoutOptions, start, options, pick, exclusion};
 if (typeof module !== 'undefined') module.exports = PhraseGame;
