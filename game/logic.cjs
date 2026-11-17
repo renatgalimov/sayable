@@ -1,0 +1,92 @@
+'use strict';
+
+function layouts() {
+  const result = [];
+  function visit(words, remaining) {
+    if (remaining === 0) {
+      result.push(words);
+      return;
+    }
+    if (words.length === 4) return;
+    for (let n = 2; n <= 4 && n <= remaining; n++) visit([...words, n], remaining - n);
+  }
+  visit([], 10);
+  return result;
+}
+
+function possibleLayouts(prefix) {
+  return layouts().filter(row => prefix.every((n, i) => row[i] === n));
+}
+
+function layoutOptions(prefix) {
+  const possible = possibleLayouts(prefix);
+  if (!possible.length) throw new RangeError('Invalid layout prefix');
+  return [2, 3, 4].flatMap(value => {
+    const leaves = possible.filter(row => row[prefix.length] === value).length;
+    return leaves ? [{value, leaves, bits: Math.log2(possible.length / leaves)}] : [];
+  });
+}
+
+function start(model, index) {
+  const all = layouts();
+  if (!Number.isInteger(index) || index < 0 || index >= all.length) throw new RangeError('Invalid layout');
+  const steps = all[index].flatMap((length, word) => [
+    {kind: 'beginning', word, bits: 7},
+    ...Array.from({length: length - 2}, () => ({kind: 'middle', word, bits: 6})),
+    {kind: 'ending', word, bits: 5},
+  ]);
+  return {layout: all[index], index, steps, tokens: [], picks: [], words: [], value: BigInt(index), bits: 4, complete: false, phrase: ''};
+}
+
+function row(model, previous) {
+  const index = previous < 256 ? model.begin.indexOf(previous) : 128 + previous - 512;
+  if (index < 0 || index >= model.contexts.length || model.contexts[index] !== previous) throw new Error('Invalid context');
+  return index;
+}
+
+function options(model, state) {
+  if (state.complete) return null;
+  const step = state.steps[state.tokens.length];
+  if (step.kind === 'beginning') return {...step, choices: model.begin};
+  const index = row(model, state.tokens.at(-1));
+  return {...step, choices: step.kind === 'middle' ? model.middle[index] : model.end32[index]};
+}
+
+function pick(model, state, index) {
+  const step = options(model, state);
+  if (!step || !Number.isInteger(index) || index < 0 || index >= step.choices.length) throw new RangeError('Invalid choice');
+  const token = step.choices[index];
+  const text = model.tokens[token].replace(/^\^|\$$/g, '');
+  const words = [...state.words];
+  if (step.kind === 'beginning') words.push(text);
+  else words[step.word] += text;
+  const tokens = [...state.tokens, token];
+  return {...state, tokens, picks: [...state.picks, index], words, phrase: words.join(' '),
+    value: state.value | (BigInt(index) << BigInt(state.bits)),
+    bits: state.bits + step.bits, complete: tokens.length === state.steps.length};
+}
+
+function exclusion(model, data, kind, previous, token) {
+  if (kind === 'beginning') return model.begin.includes(token) ? null : 'unselected';
+  const index = row(model, previous);
+  const selected = kind === 'middle' ? model.middle[index] : model.end32[index];
+  if (selected.includes(token)) return null;
+  if ((model.banned[String(previous)] || []).includes(token)) return 'blocked';
+  const text = id => model.tokens[id].replace(/^\^|\$$/g, '');
+  const before = text(previous), after = text(token);
+  if (previous < 256 && !/[aeiouy]/.test(before) && !/[aeiouy]/.test(after)) return 'vowel';
+  if (/(.)\1\1|[aeiou]{3}/.test(before.slice(-2) + after)) return 'triple';
+  const join = before.slice(-2) + after.slice(0, 2);
+  const minimum = model.relaxed[String(previous)] ?? data.trigram_minimum;
+  for (let i = 0; i + 3 <= join.length; i++) {
+    if ((data.trigram_counts[join.slice(i, i + 3)] || 0) < minimum) return 'join';
+  }
+  for (const chosen of model.middle[index].concat(model.end32[index])) {
+    const value = text(chosen);
+    if (after.startsWith(value) || value.startsWith(after)) return 'conflict';
+  }
+  return 'unselected';
+}
+
+const PhraseGame = {layouts, possibleLayouts, layoutOptions, start, options, pick, exclusion};
+if (typeof module !== 'undefined') module.exports = PhraseGame;

@@ -6,7 +6,7 @@ Other projects, such as [word4num](https://pypi.org/project/word4num/) and [go-w
 
 I also wanted the phrases to sound like more than just English. I drew on many spoken languages and made-up languages when building the model.
 
-There will be a game that explains how the system works.
+The [game](game/space-game.html) shows how the system works. Download it and open it in a browser to play. To rebuild it from the model and source files, run `python game/build.py`.
 
 The initial format handles 64-bit values. The phrase-v8 model uses ten tokens per phrase. For a longer hash phrase, I can take a stream of bytes from SHAKE and encode it in 64-bit chunks; that is composition by the caller, not a variable-length Sayable format.
 

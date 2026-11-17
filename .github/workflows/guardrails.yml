@@ -33,5 +33,14 @@ jobs:
           --blocklist models/training-data/blocklist.txt.xz
           --model models/phrase-v8.json
           --report models/phrase-v8-report.json --check
+      - name: Check game
+        env:
+          CHROME_BIN: google-chrome
+        run: |
+          node game/test-logic.cjs
+          node game/test-exhaustive.cjs
+          python -m unittest discover -s game -p 'test_*.py' -v
+          python game/build.py --check
+          node game/check-game.mjs
       - name: Check all tracked files
         run: pre-commit run --all-files --show-diff-on-failure

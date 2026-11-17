@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Fill 64 bits · Sayable</title>
+<style>
+:root{--paper:#f6f4ef;--card:#fff;--ink:#272b32;--muted:#555d68;--line:#d8d6cf;--layout:#c34b1d;--begin:#343e56;--middle:#8794a4;--end:#5b7180;--sans:system-ui,-apple-system,"Segoe UI",sans-serif;--mono:ui-monospace,SFMono-Regular,Consolas,monospace}
+
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 var(--sans)}
+main{max-width:760px;margin:auto;padding:24px 16px 40px}
+button{font:inherit}
+button:focus-visible,input:focus-visible,summary:focus-visible,#heading:focus-visible{outline:3px solid var(--layout);outline-offset:2px}
+a{color:inherit;text-underline-offset:3px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.brand{font:700 12px var(--mono);letter-spacing:.13em;text-transform:uppercase}
+.version{font:12px var(--mono);color:var(--muted)}
+h1{font-size:clamp(32px,7vw,44px);letter-spacing:-.045em;line-height:1.05;margin:26px 0 8px}
+.intro{margin:0 0 22px;color:var(--muted);max-width:53ch}
+.board{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px 15px}
+.counter{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:12px}
+.counter strong{font:700 23px var(--mono)}
+.counter > span,.counter strong span:not(#count){color:var(--muted);font-size:13px}
+.gauge{display:grid;grid-template-columns:repeat(32,minmax(0,1fr));gap:3px}
+.bit{height:10px;border:1px solid var(--line);border-radius:2px;background:var(--card)}
+.legend{display:flex;gap:5px 13px;flex-wrap:wrap;margin:15px 0 0;color:var(--muted);font-size:12px}
+.legend span{display:flex;align-items:center;gap:5px;white-space:nowrap}
+.swatch{height:9px;width:9px;border-radius:2px;background:var(--c)}
+.note{font-size:12px;color:var(--muted);margin:7px 0 0}
+.phrase{display:flex;flex-wrap:wrap;align-items:center;gap:9px 14px;min-height:62px;padding:20px 0 12px}
+.word{display:inline-flex;gap:3px;white-space:nowrap}
+.slot{display:inline-grid;place-items:center;min-width:29px;min-height:35px;padding:4px 6px;border:1px dashed #aeb4b8;border-radius:4px;font:600 15px var(--mono);color:var(--ink)}
+.slot.filled{border-style:solid;background:#f7f8f8}
+.slot.b{border-color:var(--begin)}
+.slot.c{border-color:var(--middle)}
+.slot.e{border-color:var(--end)}
+.placeholder{color:#9aa1a6}
+.stage{border-top:1px solid var(--line);padding-top:18px}
+.step{font:700 11px var(--mono);letter-spacing:.1em;color:var(--layout);text-transform:uppercase}
+h2{font-size:20px;line-height:1.25;margin:6px 0 8px;letter-spacing:-.02em}
+.prompt{font-size:14px;color:var(--muted);margin:0 0 15px;max-width:65ch}
+.choices{display:grid;gap:8px}
+.layout-choices{grid-template-columns:repeat(3,minmax(0,1fr))}
+.choice{min-height:54px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);text-align:left;padding:9px;cursor:pointer}
+.choice:hover{border-color:var(--layout)}
+.choice b{display:block;font-size:14px}
+.choice small{display:block;margin-top:2px;color:var(--muted);font-size:11px;line-height:1.3}
+.choice:disabled{color:#8a8e93;background:#f5f5f3;cursor:not-allowed}
+.choice:disabled:hover{border-color:var(--line)}
+.token-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(57px,1fr));gap:6px;max-height:260px;overflow:auto;padding:3px 3px 6px;overscroll-behavior:contain}
+.token{min-height:44px;padding:6px 4px;border:1px solid var(--line);border-radius:5px;background:#fff;color:var(--ink);font:600 15px var(--mono);cursor:pointer}
+.token:hover{border-color:var(--layout);color:var(--layout)}
+.context{margin:9px 0 13px;color:var(--muted);font-size:13px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.actions button{min-height:44px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink);padding:9px 14px;cursor:pointer}
+.actions .primary{background:var(--layout);color:#fff;border-color:var(--layout);font-weight:650}
+.actions button:disabled{opacity:.45;cursor:not-allowed}
+details{margin-top:13px;color:var(--muted);font-size:13px}
+summary{cursor:pointer;color:var(--ink);min-height:36px;padding:7px 0}
+.muted-chips{display:flex;flex-wrap:wrap;gap:4px}
+.muted-chips span{font:12px var(--mono);border:1px solid var(--line);border-radius:3px;padding:3px 5px}
+.result{padding:13px;background:#f7f5f0;border:1px solid var(--line);border-radius:7px}
+.result-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted)}
+.result-phrase{font:700 clamp(19px,5vw,25px)/1.4 var(--mono);overflow-wrap:anywhere;margin:3px 0 14px}
+.hex{font:600 16px var(--mono);overflow-wrap:anywhere}
+.binary{font:12px/1.7 var(--mono);overflow-wrap:anywhere;margin-top:5px}
+.bits-label{margin-top:14px}
+.security{font-size:13px;color:var(--muted);margin:12px 0 0}
+.footer{font-size:12px;line-height:1.6;color:var(--muted);margin:18px 0 0}
+.why{margin-top:12px}
+.why p{margin:6px 0}
+#announcer{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+@media(max-width:599px){.phrase{position:sticky;top:0;z-index:2;background:var(--card)}}
+@media(min-width:600px){main{padding:38px 24px 50px}
+.board{padding:24px}
+.gauge{grid-template-columns:repeat(64,minmax(0,1fr))}
+.bit{height:11px}
+.token-grid{grid-template-columns:repeat(auto-fill,minmax(68px,1fr));max-height:280px}
+.choice{min-height:72px;padding:12px}
+.choice b{font-size:16px}
+.choice small{font-size:12px}
+}
+
+.origin { min-height: 2.8em; margin: 8px 0; color: var(--muted); font-size: 13px; }
+
+.origin a { color: var(--ink); text-decoration-style: dotted; }
+
+.origin a b { color: var(--layout); }
+.origin-list,.dictionary-results { display:flex; flex-wrap:wrap; gap:4px 10px; margin:8px 0; }
+.origin-list button,.dictionary-results button { font-family:var(--mono); }
+.word-info:not(:empty) { margin:10px 0; padding:10px; border:1px solid var(--line); border-radius:5px; color:var(--ink); overflow-wrap:anywhere; }
+.word-info p { margin:8px 0 4px; }
+.word-info ul { padding-left:22px; margin:6px 0; }
+.word-info a { color:var(--ink); text-decoration-style:dotted; }
+.dictionary label { display:block; margin-top:10px; }
+.dictionary input { width:100%; padding:10px; border:1px solid var(--line); border-radius:5px; font:inherit; }
+.dictionary button,.origin button { min-height:44px; padding:8px 12px; font:inherit; border:1px solid var(--line); border-radius:5px; background:#fff; color:var(--ink); cursor:pointer; }
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><span class="brand">Sayable / the game</span><span class="version">phrase-v8</span></div>
+  <h1>Fill 64 bits.</h1>
+  <p class="intro">Build a phrase, one choice at a time. Each choice carries a little information. Together, they fit a 64-bit number.</p>
+  <section class="board" aria-label="Phrase building game">
+    <div class="counter"><strong><span id="count">0</span> / 64 <span>bits chosen</span></strong><span id="remaining">64 to go</span></div>
+    <div class="gauge" id="gauge" role="meter" aria-label="Bits chosen" aria-valuemin="0" aria-valuemax="64" aria-valuenow="0"></div>
+    <div class="legend" aria-label="Colour key">
+      <span><i class="swatch" style="--c:var(--layout)"></i>Layout · 4 bits</span>
+      <span><i class="swatch" style="--c:var(--begin)"></i>Beginning · 7</span>
+      <span><i class="swatch" style="--c:var(--middle)"></i>Middle · 6</span>
+      <span><i class="swatch" style="--c:var(--end)"></i>Ending · 5</span>
+    </div>
+    <p class="note">Pale squares are bits reserved for tokens you haven’t chosen yet.</p>
+    <div class="phrase" id="phrase" aria-label="Phrase so far"></div>
+    <div class="stage" id="stage" data-phase="layout">
+      <span class="step" id="step"></span>
+      <h2 id="heading" tabindex="-1"></h2>
+      <p class="prompt" id="prompt"></p>
+      <div id="panel"></div>
+    </div>
+    <div class="actions">
+      <button class="primary" type="button" id="random">Fill randomly</button>
+      <button type="button" id="undo">Undo</button>
+      <button type="button" id="reset">Start over</button>
+    </div>
+    <span id="announcer" aria-live="polite"></span>
+  <details class="dictionary">
+    <summary>Browse the training dictionary</summary>
+    <p class="note">These are the normalized training words, not a list of generated phrases. Some words cannot be split into model tokens.</p>
+    <label for="dictionary-search">Search words</label>
+    <input id="dictionary-search" type="search" autocomplete="off" placeholder="Search the dictionary">
+    <p id="dictionary-count" class="note"></p>
+    <div id="dictionary-info" class="word-info" aria-live="polite"></div>
+    <div id="dictionary-results" class="dictionary-results"></div>
+    <button id="dictionary-more" type="button">Show more</button>
+  </details>
+  </section>
+  <p class="footer">Sayable is reversible encoding, not encryption. The model filters against specific word lists; it cannot catch every offensive word. Model data: CC BY-SA 4.0. <a href="https://github.com/renatgalimov/sayable/blob/main/models/NOTICE.md" target="_blank" rel="noopener noreferrer">Sources and licenses</a>.</p>
+</main>
+<script id="model-data" type="application/json">__MODEL__</script>
+<script id="origin-data" type="application/json">__ORIGINS__</script>
+<script>
+__LOGIC__
+__APP__
+</script>
+</body>
+</html>

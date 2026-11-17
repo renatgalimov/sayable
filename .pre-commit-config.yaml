@@ -21,6 +21,12 @@ repos:
         entry: check-added-large-files --enforce-all --maxkb=2048
         language: system
         types: [file]
+        exclude: ^game/space-game\.html$
+      - id: check-game-size
+        name: Check generated game size
+        entry: check-added-large-files --enforce-all --maxkb=14336
+        language: system
+        files: ^game/space-game\.html$
       - id: end-of-file-fixer
         name: Fix final newline
         entry: end-of-file-fixer
